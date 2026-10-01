@@ -1,0 +1,83 @@
+table supplier
+	lineageTag: fd17f3b0-0624-48b7-a77e-f4a1c93142e0
+	sourceLineageTag: [dbo].[gold_supplier_dim]
+
+	column SupplierKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 03812108-b5f0-452e-b931-3b322099e7e3
+		sourceLineageTag: SupplierKey
+		summarizeBy: none
+		sourceColumn: SupplierKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SupplierID
+		dataType: int64
+		formatString: 0
+		lineageTag: 02049e77-1883-499b-92d9-f85b985b7d91
+		sourceLineageTag: SupplierID
+		summarizeBy: none
+		sourceColumn: SupplierID
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column CompanyName
+		dataType: string
+		lineageTag: b0172ab7-3014-4eab-9b38-9d35070596fc
+		sourceLineageTag: CompanyName
+		summarizeBy: none
+		sourceColumn: CompanyName
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContactName
+		dataType: string
+		lineageTag: 44c91df6-2621-4f67-84b8-bb92a6d5708d
+		sourceLineageTag: ContactName
+		summarizeBy: none
+		sourceColumn: ContactName
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: ed5102a4-1080-46d2-a513-0b3899d8fa6c
+		sourceLineageTag: City
+		summarizeBy: none
+		sourceColumn: City
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: 045ead9e-b4e9-4ea8-aefe-073a2e26dfda
+		sourceLineageTag: Country
+		summarizeBy: none
+		sourceColumn: Country
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition supplier = entity
+		mode: directLake
+		source
+			entityName: gold_supplier_dim
+			schemaName: dbo
+			expressionSource: 'DirectLake - New_Lake'
+
+	changedProperty = IsHidden
+
+	changedProperty = Name
+

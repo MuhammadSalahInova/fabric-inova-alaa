@@ -1,0 +1,2813 @@
+table Measure
+	lineageTag: 442265b6-702c-4b5c-a899-bc2da0608cff
+
+	/// Total shipping costs paid for orders.
+	measure 'Total Freight' =
+			
+			SUMX(
+			    VALUES(orders[OrderID]),
+			    CALCULATE(MAX(orders[Freight]))
+			)
+		lineageTag: 996ab701-1f86-4c09-ae35-edc500658b1e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Total number of unique requests that were executed.
+	/// 
+	measure 'Total Orders' = DISTINCTCOUNT(orders[OrderID])
+		formatString: 0
+		lineageTag: 2735f8b5-883a-45ad-9c18-edbc2f72e487
+
+	/// Average discount percentage applied across orders
+	/// 
+	measure 'Average Discount' = AVERAGE(orders[Discount])
+		lineageTag: 3843ed8c-3505-44b3-b295-2e8cdc3b029d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Average total value of a single order
+	measure 'Average Order Value' = DIVIDE([Total Revenue], [Total Orders])
+		lineageTag: 026a39a8-3fa2-4625-8c00-6d078cc59b5a
+
+	/// This represents the total net revenue from sales after deducting discounts.
+	measure 'Total Revenue' = SUM(orders[UnitPrice])
+		lineageTag: 2994a8d0-1071-4096-8d90-fa50822e14ca
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Calculates total sales revenue across all rows in the 'orders' table by iterating row-by-row and multiplying quantity by unit price (Quantity * UnitPrice). Dependencies: orders[Quantity], orders[UnitPrice]. Use this measure for overall revenue analysis, sales trends, and performance tracking
+	measure 'Total Sales' = SUMX('orders', 'orders'[Quantity] * 'orders'[UnitPrice])
+		lineageTag: 6842a5ed-6765-41d1-b645-175b11ce12b5
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Calculates the percentage of total profit relative to total sales ([Total Profit] / [Total Sales]).
+	/// 
+	measure 'Profit Margin %' =
+			
+			DIVIDE(
+			    [Total Profit],
+			    [Total Sales]
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 89bc857d-ec74-4563-a13a-0981b8e1ffaa
+
+	/// Calculates the proportion of orders that resulted in a profit by dividing the count of profitable orders by the total order count. Dependencies: orders[Profit Status], orders[OrderID]. Use this measure for profitability success rate analysis
+	measure 'Pct Profitable Orders' =
+			
+			DIVIDE(
+			    CALCULATE(COUNT('orders'[OrderID]), 'orders'[Profit Status] = "Profit"),
+			    COUNT('orders'[OrderID])
+			)
+		lineageTag: e4263e30-6049-4b85-b6b7-894d2f9e8171
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Calculates the total count of order rows that meet high-performance criteria, specifically having a sales per order value greater than 500 AND a profit greater than 100. Dependencies: Orders, orders[Sales Per Order], Orders[Profit]. Use this measure for analyzing the volume of high-value, high-profit transactions
+	measure 'Strong Orders' =
+			
+			COUNTROWS(
+			    FILTER(
+			        'orders',
+			        AND('orders'[Sales Per Order] > 500, 'orders'[Profit] > 100)
+			    )
+			)
+		formatString: 0
+		lineageTag: c299d40d-d193-4079-96f8-fdae08e62bf8
+
+	/// Calculates the total gross sales revenue specifically for orders that received a discount (Orders[Discount] > 0). Dependencies: orders[Sales Per Order], Orders[Discount]. Use this measure for analyzing promotional revenue performance, comparing discounted versus non-discounted sales, and evaluating marketing campaign impact
+	/// 
+	measure 'Sales with Discount' =
+			
+			CALCULATE(
+			    SUM('orders'[Sales Per Order]),
+			    'orders'[Discount] > 0
+			)
+		lineageTag: 32978488-5953-4179-a5dd-ba59748328cc
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Calculates Year-to-Date (YTD) total sales by aggregating sales from the beginning of the calendar year up to the current date context using the Date calendar dimension. Dependencies: orders[Sales Per Order], Date[FullDate]. Use this measure for annual performance tracking and year-over-year time intelligence analysis.
+	/// 
+	measure 'Sales YTD using DATESYTD' =
+			
+			CALCULATE(
+			    SUM(orders[Sales Per Order]),
+			    DATESYTD('Date'[FullDate])
+			)
+		lineageTag: 5c626977-be01-4e36-951a-abbc2d6fb376
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Calculates Month-to-Date (MTD) total sales by aggregating sales from the start of the current month up to the current date context using the Date calendar dimension. Dependencies: orders[Sales Per Order], Date[FullDate]. Use this measure for tracking monthly sales performance and short-term trends.
+	/// 
+	measure 'Sales MTD' =
+			
+			CALCULATE(
+			    SUM(orders[Sales Per Order]),
+			    DATESMTD('Date'[FullDate])
+			)
+		lineageTag: 063ba6f2-62b1-4785-bc7d-ba902a913cf9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Calculates Quarter-to-Date (QTD) total sales by aggregating sales from the beginning of the current quarter up to the current date context using the Date calendar dimension. Dependencies: orders[Sales Per Order], Date[FullDate]. Use this measure for quarterly financial reviews and periodic trend analysis.
+	measure 'Sales QTD' =
+			
+			CALCULATE(
+			    SUM(orders[Sales Per Order]),
+			    DATESQTD('Date'[FullDate])
+			)
+		lineageTag: d9fa1060-bf54-411f-82ed-89421ff7c625
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Total quantity of items sold across all orders
+	measure 'Total Quantity' = SUM('orders'[Quantity])
+		formatString: 0
+		lineageTag: 8e6db67d-a176-41f0-b6b7-d5810fb798a6
+
+	/// Count of unique customers based on distinct contact names
+	measure 'Unique Customers' = DISTINCTCOUNT(customer[ContactName])
+		formatString: 0
+		lineageTag: 75c02685-3345-4014-b1c5-15457134ddc0
+
+	/// Average sales value across orders
+	measure 'Average Sales' = AVERAGE(orders[Sales Category])
+		formatString: 0
+		lineageTag: 47ccf64c-f234-4858-95f7-4b35257ac97d
+
+	/// Named "Total Profit" but the formula actually computes the absolute total discount amount given (Quantity × UnitPrice × Discount), not true profit (which would require cost data). Verify calculation logic before using for profit analysis.
+	measure 'Total Profit' = ```
+			
+			ABS(
+			    SUMX(
+			        'orders', 
+			        ('orders'[Quantity] * 'orders'[UnitPrice] * (1 - 'orders'[Discount])) - ('orders'[Quantity] * 'orders'[UnitPrice])
+			    )
+			)
+			```
+		lineageTag: d95c1500-f243-4d1f-9aed-34e599a1a795
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Risky Orders Count' =
+			
+			CALCULATE(
+			    COUNTROWS(orders),
+			    orders[Profit] < 0 || orders[Discount] > 0.20
+			)
+		formatString: 0
+		lineageTag: 23401878-b9ac-415f-9223-658df562d479
+
+	/// Percentage contribution of each product category to total sales
+	measure 'Category Contribution %' =
+			
+			DIVIDE(
+			    [Total Sales],
+			    CALCULATE(
+			        [Total Sales],
+			        ALL('product'[CategoryName])
+			    )
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: ab8bcf00-b73a-4de4-b8f4-7836e97f838f
+
+	measure 'Profitable Sales' =
+			
+			CALCULATE(
+			    [Total Sales],
+			    FILTER(
+			        'orders',
+			        'orders'[Profit] > 0
+			    )
+			)
+		lineageTag: 4524976e-d680-4cdf-907a-395f5a599644
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Count of unique territories/regions represented in the data
+	measure 'Distinct Regions' =
+			
+			COUNTROWS(
+			    DISTINCT(customer[Region])
+			)
+		formatString: 0
+		lineageTag: 5a27ddf8-c818-4e94-b909-0c5e707707cd
+
+	measure 'Sales Keep Region' =
+			
+			CALCULATE(
+			    [Total Sales],
+			    ALLEXCEPT(
+			        Orders,
+			        customer[Region]
+			    )
+			)
+		lineageTag: 3b7abd39-f5ba-4615-8912-df7da705c663
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Total sales value after applying discount, calculated as Sales Per Order minus discount, summed across all orders
+	measure 'Net Sales' =
+			
+			SUMX(
+			    'orders',
+			    'orders'[Sales Per Order] * (1 - 'orders'[Discount])
+			)
+		lineageTag: cbe4c5bf-732e-4b5b-8bb9-7df2f04ac126
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Max Profit Margin' =
+			
+			MAXX(
+			    'orders',
+			    DIVIDE('orders'[Profit], [Total Sales])
+			)
+		lineageTag: 35993141-b8c7-4c04-b9f4-77437e3bcf17
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Min Profit Margin' =
+			
+			MINX(
+			    'orders',
+			    DIVIDE('orders'[Profit], [Total Sales])
+			)
+		lineageTag: f8328033-ec9e-44d7-934e-4918dc8c6b26
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Average profit margin percentage across orders
+	measure 'Avg Profit Margin' = ```
+			
+			AVERAGEX(
+			    orders, 
+			    ABS(DIVIDE(orders[Profit], orders[Sales Per Order]))
+			)
+			```
+		lineageTag: 105ffadd-76f0-4127-951b-6d04dba9d091
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Absolute difference in total sales between this year and last year (Total Sales - Sales Last Year, calculated using SAMEPERIODLASTYEAR). This is a value difference, not a percentage growth rate.
+	measure 'YoY Growth' =
+			
+			[Total Sales] - [Sales Last Year]
+		lineageTag: 83635bb1-14c6-4512-adb6-ce9474fb5188
+
+	measure 'Sales by Category Visual' =
+			
+			
+			VAR _Categories =
+			    ADDCOLUMNS(
+			        ALLSELECTED('product'[CategoryName]),
+			        "SalesValue",
+			        CALCULATE([Total Sales])
+			    )
+			
+			VAR _MaxSales =
+			    MAXX(
+			        _Categories,
+			        [SalesValue]
+			    )
+			
+			VAR _TopCategories =
+			    TOPN(
+			        5,
+			        _Categories,
+			        [SalesValue],
+			        DESC
+			    )
+			
+			RETURN
+			
+			"<style>
+			
+			.sales-chart{
+			    font-family:Segoe UI,sans-serif;
+			    width:100%;
+			    height:100%;
+			    padding:16px;
+			    box-sizing:border-box;
+			    background:#1A1E30;
+			    border-radius:12px;
+			}
+			
+			.title{
+			    font-size:16px;
+			    font-weight:700;
+			    color:#FFFFFF;
+			    margin-bottom:3px;
+			}
+			
+			.subtitle{
+			    font-size:11px;
+			    color:#8F96B2;
+			    margin-bottom:18px;
+			}
+			
+			.row{
+			    display:flex;
+			    align-items:center;
+			    margin-bottom:13px;
+			}
+			
+			.label{
+			    width:110px;
+			    font-size:11px;
+			    color:#D5D8E5;
+			    text-align:right;
+			    padding-right:10px;
+			    white-space:nowrap;
+			}
+			
+			.bar-area{
+			    flex:1;
+			    height:14px;
+			    background:#252A40;
+			    border-radius:4px;
+			    overflow:hidden;
+			}
+			
+			.bar{
+			    height:100%;
+			    background:linear-gradient(
+			        90deg,
+			        #22D3EE 0%,
+			        #3B82F6 35%,
+			        #8B5CF6 70%,
+			        #EC4899 100%
+			    );
+			    border-radius:4px;
+			    box-shadow:0 0 8px rgba(59,130,246,0.35);
+			}
+			
+			.value{
+			    width:60px;
+			    padding-left:8px;
+			    font-size:10px;
+			    color:#FFFFFF;
+			    font-weight:600;
+			}
+			
+			</style>
+			
+			<div class='sales-chart'>
+			
+			<div class='title'>Total Sales</div>
+			
+			<div class='subtitle'>by Category</div>"
+			
+			&
+			
+			CONCATENATEX(
+			
+			    _TopCategories,
+			
+			    VAR _Category =
+			        'product'[CategoryName]
+			
+			    VAR _Sales =
+			        [SalesValue]
+			
+			    VAR _Width =
+			        DIVIDE(
+			            _Sales,
+			            _MaxSales,
+			            0
+			        ) * 100
+			
+			    RETURN
+			
+			    "<div class='row'>
+			
+			        <div class='label'>"
+			        & _Category &
+			        "</div>
+			
+			        <div class='bar-area'>
+			
+			            <div class='bar'
+			            style='width:"
+			            & FORMAT(_Width,"0.0")
+			            & "%'>
+			            </div>
+			
+			        </div>
+			
+			        <div class='value'>"
+			        & FORMAT(_Sales/1000000,"0.00")
+			        & "M
+			        </div>
+			
+			    </div>",
+			
+			    ""
+			
+			)
+			
+			&
+			
+			"</div>"
+		lineageTag: bb0a7734-90ea-457a-aeb0-502910a3474f
+
+	/// Duplicate calculation identical to "Net Sales" and "Total_Profit" — computes UnitPrice × Quantity × (1 - Discount). Candidate for consolidation.
+	measure Total_Sales =
+			
+			SUMX(
+			    orders,
+			    orders[UnitPrice] * orders[Quantity] * (1 - orders[Discount])
+			)
+		lineageTag: f5d4df4a-2b50-43a4-994c-614cb99a9751
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Named "Total_Profit" but the formula actually computes net sales after discount (UnitPrice × Quantity × (1 - Discount)), duplicating the "Net Sales" measure. Not true profit — no cost data is subtracted. Candidate for consolidation.
+	measure Total_Profit =
+			
+			SUMX(
+			    orders,
+			    (orders[UnitPrice] * orders[Quantity]) - (orders[UnitPrice] * orders[Quantity] * orders[Discount])
+			)
+		lineageTag: 7f8911ae-b814-49e4-ba65-3882b8f941a4
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure NavCard_overView =
+			
+			VAR _html =
+			"<style>
+			  .card-wrap {
+			    position: fixed;
+			    inset: 0;
+			    margin: 0;
+			    padding: 18px;
+			    box-sizing: border-box;
+			    display: flex;
+			    align-items: center;
+			    justify-content: center;
+			    background: #1E2235;
+			  }
+			  .card {
+			    position: relative;
+			    width: 100%;
+			    height: 100%;
+			    box-sizing: border-box;
+			    background-color: #1E2235;
+			    display: flex;
+			    flex-direction: column;
+			    justify-content: flex-start;
+			    padding: 28px;
+			    gap: 12px;
+			    border-radius: 8px;
+			    cursor: pointer;
+			    color: white;
+			  }
+			  .card::before {
+			    content: '';
+			    position: absolute;
+			    inset: -16px;
+			    border-radius: 14px;
+			    background: linear-gradient(-45deg, #22D3EE 0%, #8B5CF6 50%, #EC4899 100%);
+			    z-index: -10;
+			    pointer-events: none;
+			    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+			  }
+			  .card::after {
+			    content: '';
+			    z-index: -1;
+			    position: absolute;
+			    inset: -16px;
+			    background: linear-gradient(-45deg, #0EA5C7 0%, #7C3AED 50%, #DB2777 100%);
+			    transform: translate3d(0, 0, 0) scale(0.95);
+			    filter: blur(26px);
+			  }
+			  .num {
+			    font-size: 14px;
+			    color: #a8a8a8;
+			    margin: 0;
+			  }
+			  .heading {
+			    display: flex;
+			    align-items: center;
+			    gap: 10px;
+			    font-size: 32px;
+			    text-transform: capitalize;
+			    font-weight: 500;
+			    margin: 0;
+			    line-height: 1.25;
+			  }
+			  .heading-icon {
+			    flex-shrink: 0;
+			  }
+			  .card p.desc {
+			    font-size: 18px;
+			    color: #c8c8c8;
+			    line-height: 1.6;
+			    margin: 0;
+			  }
+			  .card:hover::after {
+			    filter: blur(34px);
+			  }
+			  .card:hover::before {
+			    transform: rotate(-90deg) scaleX(1.34) scaleY(0.77);
+			  }
+			</style>
+			<div class='card-wrap'>
+			  <div class='card'>
+			    <p class='num'>01</p>
+			    <p class='heading'><svg class='heading-icon' width='34' height='34' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='#F5B942'/><text x='12' y='16' font-size='12' text-anchor='middle' fill='#7A4B00' font-family='Arial' font-weight='bold'>$</text></svg>Sales OverView</p>
+			    <p class='desc'>Track total quantity, sales, and freight, and spot
+			risky orders at a glance. Compare category
+			performance, explore geographic sales
+			distribution, and follow trends for top products.
+			</p>
+			  </div>
+			</div>"
+			RETURN _html
+		lineageTag: 5a77a971-d9b0-4546-a362-906918039be3
+
+	measure me = ```
+			<style>
+			.menu {
+			  width: calc(100% - 20px);
+			  max-width: 520px;
+			  padding: 8px;
+			
+			  display: flex;
+			  justify-content: center;
+			  gap: 8px;
+			
+			  background: rgba(0, 122, 255, 0.40);
+			  border: 1px solid rgba(255, 255, 255, 0.35);
+			  border-radius: 999px;
+			
+			  backdrop-filter: blur(12px) saturate(180%) contrast(200%);
+			  -webkit-backdrop-filter: blur(12px) saturate(180%) contrast(200%);
+			
+			  box-shadow:
+			    0 10px 30px rgba(0, 0, 0, 0.08),
+			    inset 2px 2px 5px -2px rgba(255, 255, 255, 0.4),
+			    inset -2px -2px 5px 2px rgba(255, 255, 255, 0.25);
+			
+			  box-sizing: border-box;
+			}
+			
+			/* Glass highlight */
+			.menu::after {
+			  content: "";
+			  position: absolute;
+			  inset: 0;
+			
+			  border-radius: inherit;
+			
+			  box-shadow:
+			    inset 2px 2px 5px -2px rgba(255, 255, 255, 0.45),
+			    inset -2px -2px 5px 2px rgba(255, 255, 255, 0.35),
+			    inset 0 -2px 0 rgba(255, 255, 255, 0.20);
+			
+			  pointer-events: none;
+			}
+			
+			/* Items */
+			.menu a {
+			  display: flex;
+			  flex-direction: column;
+			  align-items: center;
+			  justify-content: center;
+			
+			  flex: 1 1 0;
+			  min-width: 0;
+			
+			  padding: 10px 6px;
+			
+			  color: rgba(255, 255, 255, 0.92);
+			  text-decoration: none;
+			
+			  border-radius: 999px;
+			
+			  transition:
+			    background 0.2s ease,
+			    color 0.2s ease,
+			    transform 0.2s ease,
+			    box-shadow 0.25s ease;
+			
+			  cursor: pointer;
+			}
+			
+			/* Icon */
+			.menu a svg {
+			  width: 25px;
+			  height: 25px;
+			
+			  margin-bottom: 4px;
+			
+			  fill: currentColor;
+			
+			  transition:
+			    transform 0.2s ease,
+			    filter 0.2s ease;
+			}
+			
+			/* Text */
+			.menu a span {
+			  font-family: Arial, sans-serif;
+			
+			  font-size: 12px;
+			  font-weight: 600;
+			
+			  line-height: 1;
+			}
+			
+			/* Hover */
+			.menu a:hover {
+			  background: rgba(255, 255, 255, 0.28);
+			
+			  color: rgba(0, 92, 220, 0.90);
+			
+			  box-shadow:
+			    inset 2px 2px 5px -2px rgba(255, 255, 255, 0.5),
+			    inset -2px -1px 5px rgba(255, 255, 255, 0.35);
+			
+			  transform: translateY(-1px);
+			}
+			
+			.menu a:hover svg {
+			  transform: scale(1.08);
+			}
+			
+			/* Active item */
+			.menu a.active {
+			  background: rgba(245, 248, 255, 0.72);
+			
+			  color: rgba(0, 102, 230, 0.95);
+			
+			  box-shadow:
+			    inset 2px 2px 5px -2px rgba(255, 255, 255, 0.8),
+			    inset -2px -2px 5px rgba(255, 255, 255, 0.35),
+			    0 2px 8px rgba(0, 90, 220, 0.12);
+			}
+			
+			/* Active icon */
+			.menu a.active svg {
+			  filter: drop-shadow(0 2px 3px rgba(0, 100, 255, 0.18));
+			}
+			
+			/* Click */
+			.menu a:active {
+			  transform: scale(0.97);
+			}
+			</style>
+			
+			
+			<div class="menu">
+			
+			  <!-- HOME -->
+			  <a href="#" class="active">
+			
+			    <svg
+			      xmlns="http://www.w3.org/2000/svg"
+			      viewBox="0 0 24 24"
+			      fill="currentColor"
+			    >
+			      <path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z"/>
+			      
+			      <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.432Z"/>
+			    </svg>
+			
+			    <span>Home</span>
+			  </a>
+			
+			
+			  <!-- FILES -->
+			  <a href="#">
+			
+			    <svg
+			      xmlns="http://www.w3.org/2000/svg"
+			      viewBox="0 0 24 24"
+			      fill="currentColor"
+			    >
+			      <path d="M19.5 21a3 3 0 0 0 3-3v-4.5a3 3 0 0 0-3-3h-15a3 3 0 0 0-3 3V18a3 3 0 0 0 3 3h15ZM1.5 10.146V6a3 3 0 0 1 3-3h5.379a2.25 2.25 0 0 1 1.59.659l2.122 2.121c.14.141.331.22.53.22H19.5a3 3 0 0 1 3 3v1.146A4.483 4.483 0 0 0 19.5 9h-15a4.483 4.483 0 0 0-3 1.146Z"/>
+			    </svg>
+			
+			    <span>Files</span>
+			  </a>
+			
+			
+			  <!-- PLANS -->
+			  <a href="#">
+			
+			    <svg
+			      xmlns="http://www.w3.org/2000/svg"
+			      viewBox="0 0 24 24"
+			      fill="currentColor"
+			    >
+			      <path
+			        fill-rule="evenodd"
+			        d="M6.75 2.25A.75.75 0 0 1 7.5 3v1.5h9V3A.75.75 0 0 1 18 3v1.5h.75a3 3 0 0 1 3 3v11.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3H6V3a.75.75 0 0 1 .75-.75Zm13.5 9a1.5 1.5 0 0 0-1.5-1.5H5.25a1.5 1.5 0 0 0-1.5 1.5v7.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-7.5Z"
+			        clip-rule="evenodd"
+			      />
+			    </svg>
+			
+			    <span>Plans</span>
+			  </a>
+			
+			
+			  <!-- SETTINGS -->
+			  <a href="#">
+			
+			    <svg
+			      xmlns="http://www.w3.org/2000/svg"
+			      viewBox="0 0 24 24"
+			      fill="currentColor"
+			    >
+			      <path d="M17.004 10.407c.138.435-.216.842-.672.842h-3.465a.75.75 0 0 1-.65-.375l-1.732-3c-.229-.396-.053-.907.393-1.004a5.252 5.252 0 0 1 6.126 3.537Z"/>
+			
+			      <path
+			        fill-rule="evenodd"
+			        d="M21 12.75a.75.75 0 1 0 0-1.5h-.783a8.22 8.22 0 0 0-.237-1.357l.734-.267a.75.75 0 1 0-.513-1.41l-.735.268a8.24 8.24 0 0 0-.689-1.192l.6-.503a.75.75 0 1 0-.964-1.149l-.6.504a8.3 8.3 0 0 0-1.054-.885l.391-.678a.75.75 0 1 0-1.299-.75l-.39.676a8.188 8.188 0 0 0-1.295-.47l.136-.77a.75.75 0 0 0-1.477-.26l-.136.77a8.36 8.36 0 0 0-1.377 0l-.136-.77a.75.75 0 1 0-1.477.26l.136.77c-.448.121-.88.28-1.294.47l-.39-.676a.75.75 0 0 0-1.3.75l.392.678a8.29 8.29 0 0 0-1.054.885l-.6-.504a.75.75 0 1 0-.965 1.149l.6.503a8.243 8.243 0 0 0-.689 1.192L3.8 8.216a.75.75 0 1 0-.513 1.41l.735.267a8.222 8.222 0 0 0-.238 1.356h-.783a.75.75 0 0 0 0 1.5h.783c.042.464.122.917.238 1.356l-.735.268a.75.75 0 0 0 .513 1.41l.735-.268c.197.417.428.816.69 1.191l-.6.504a.75.75 0 0 0 .963 1.15l.601-.505c.326.323.679.62 1.054.885l-.392.68a.75.75 0 0 0 1.3.75l.39-.679c.414.192.847.35 1.294.471l-.136.77a.75.75 0 0 0 1.477.261l.137-.772a8.332 8.332 0 0 0 1.376 0l.136.772a.75.75 0 1 0 1.477-.26l-.136-.771a8.19 8.19 0 0 0 1.294-.47l.391.677a.75.75 0 0 0 1.3-.75l-.393-.679a8.29 8.29 0 0 0 1.054-.885l.601.504a.75.75 0 0 0 .964-1.15l-.6-.503c.261-.375.492-.774.69-1.191l.735.267a.75.75 0 1 0 .512-1.41l-.734-.267c.115-.439.195-.892.237-1.356h.784Z"
+			        clip-rule="evenodd"
+			      />
+			    </svg>
+			
+			    <span>Settings</span>
+			  </a>
+			
+			</div>
+			```
+		lineageTag: be1f9e39-95be-4864-afcf-688bb9d5074c
+
+	measure NavCard_customerProduct =
+			
+			VAR _html =
+			"<style>
+			  .card-wrap {
+			    position: fixed;
+			    inset: 0;
+			    margin: 0;
+			    padding: 18px;
+			    box-sizing: border-box;
+			    display: flex;
+			    align-items: center;
+			    justify-content: center;
+			    background: #1E2235;
+			  }
+			  .card {
+			    position: relative;
+			    width: 100%;
+			    height: 100%;
+			    box-sizing: border-box;
+			    background-color: #1E2235;
+			    display: flex;
+			    flex-direction: column;
+			    justify-content: flex-start;
+			    padding: 28px;
+			    gap: 12px;
+			    border-radius: 8px;
+			    cursor: pointer;
+			    color: white;
+			  }
+			  .card::before {
+			    content: '';
+			    position: absolute;
+			    inset: -16px;
+			    border-radius: 14px;
+			    background: linear-gradient(-45deg, #22D3EE 0%, #8B5CF6 50%, #EC4899 100%);
+			    z-index: -10;
+			    pointer-events: none;
+			    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+			  }
+			  .card::after {
+			    content: '';
+			    z-index: -1;
+			    position: absolute;
+			    inset: -16px;
+			    background: linear-gradient(-45deg, #0EA5C7 0%, #7C3AED 50%, #DB2777 100%);
+			    transform: translate3d(0, 0, 0) scale(0.95);
+			    filter: blur(26px);
+			  }
+			  .num {
+			    font-size: 14px;
+			    color: #a8a8a8;
+			    margin: 0;
+			  }
+			  .heading {
+			    display: flex;
+			    align-items: center;
+			    gap: 10px;
+			    font-size: 32px;
+			    text-transform: capitalize;
+			    font-weight: 500;
+			    margin: 0;
+			    line-height: 1.25;
+			  }
+			  .heading-icon {
+			    flex-shrink: 0;
+			  }
+			  .card p.desc {
+			    font-size: 18px;
+			    color: #c8c8c8;
+			    line-height: 1.6;
+			    margin: 0;
+			  }
+			  .card:hover::after {
+			    filter: blur(34px);
+			  }
+			  .card:hover::before {
+			    transform: rotate(-90deg) scaleX(1.34) scaleY(0.77);
+			  }
+			</style>
+			<div class='card-wrap'>
+			  <div class='card'>
+			    <p class='num'>03</p>
+			    <p class='heading'><svg class='heading-icon' width='34' height='34' viewBox='0 0 24 24'><path fill='#2DD4BF' d='M12 12c2.2 0 4-1.79 4-4s-1.8-4-4-4-4 1.79-4 4 1.8 4 4 4zm-1.5 1.5C7.24 13.5 4 15.13 4 17v2h9v-2c0-1.87-3.24-3.5-6.5-3.5zM17 12c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm0 1.5c-.42 0-.86.03-1.31.09.98.71 1.81 1.72 1.81 2.91v2h5v-2c0-1.63-2.62-2.9-5.5-3z'/></svg>Customer - Product</p>
+			    <p class='desc'>See who's buying, what they're buying, and how
+			customer segments and top products are
+			driving overall order volume, distribution,
+			and profit margins.
+			</p>
+			  </div>
+			</div>"
+			RETURN _html
+		lineageTag: e715551b-ce91-4b5c-a770-7cd7f573496c
+
+	measure NavCard_profitability =
+			
+			VAR _html =
+			"<style>
+			  .card-wrap {
+			    position: fixed;
+			    inset: 0;
+			    margin: 0;
+			    padding: 18px;
+			    box-sizing: border-box;
+			    display: flex;
+			    align-items: center;
+			    justify-content: center;
+			    background: #1E2235;
+			  }
+			  .card {
+			    position: relative;
+			    width: 100%;
+			    height: 100%;
+			    box-sizing: border-box;
+			    background-color: #1E2235;
+			    display: flex;
+			    flex-direction: column;
+			    justify-content: flex-start;
+			    padding: 28px;
+			    gap: 12px;
+			    border-radius: 8px;
+			    cursor: pointer;
+			    color: white;
+			  }
+			  .card::before {
+			    content: '';
+			    position: absolute;
+			    inset: -16px;
+			    border-radius: 14px;
+			    background: linear-gradient(-45deg, #22D3EE 0%, #8B5CF6 50%, #EC4899 100%);
+			    z-index: -10;
+			    pointer-events: none;
+			    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+			  }
+			  .card::after {
+			    content: '';
+			    z-index: -1;
+			    position: absolute;
+			    inset: -16px;
+			    background: linear-gradient(-45deg, #0EA5C7 0%, #7C3AED 50%, #DB2777 100%);
+			    transform: translate3d(0, 0, 0) scale(0.95);
+			    filter: blur(26px);
+			  }
+			  .num {
+			    font-size: 14px;
+			    color: #a8a8a8;
+			    margin: 0;
+			  }
+			  .heading {
+			    display: flex;
+			    align-items: center;
+			    gap: 10px;
+			    font-size: 32px;
+			    text-transform: capitalize;
+			    font-weight: 500;
+			    margin: 0;
+			    line-height: 1.25;
+			  }
+			  .heading-icon {
+			    flex-shrink: 0;
+			  }
+			  .card p.desc {
+			    font-size: 18px;
+			    color: #c8c8c8;
+			    line-height: 1.6;
+			    margin: 0;
+			  }
+			  .card:hover::after {
+			    filter: blur(34px);
+			  }
+			  .card:hover::before {
+			    transform: rotate(-90deg) scaleX(1.34) scaleY(0.77);
+			  }
+			</style>
+			<div class='card-wrap'>
+			  <div class='card'>
+			    <p class='num'>02</p>
+			    <p class='heading'><svg class='heading-icon' width='34' height='34' viewBox='0 0 24 24'><rect x='7' y='4' width='13' height='16' rx='2' fill='#A78BFA'/><rect x='10' y='13' width='2' height='4' fill='#1E2235'/><rect x='13' y='11' width='2' height='6' fill='#1E2235'/><rect x='16' y='9' width='2' height='8' fill='#1E2235'/><circle cx='7' cy='7' r='4' fill='#EC4899'/><text x='7' y='9' font-size='5' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>$</text></svg>Profitability Analysis</p>
+			    <p class='desc'>Compare profitability by sub-category, weigh
+			revenue against profit by region, and break
+			down discount levels alongside order volume
+			and discounted sales performance.
+			</p>
+			  </div>
+			</div>"
+			RETURN _html
+		lineageTag: 1b3b0020-a7a5-4ffe-91cb-1033845cc043
+
+	measure Loader_html =
+			
+			VAR _html =
+			"<style>
+			.loader-wrap {
+			  display: flex;
+			  align-items: center;
+			  justify-content: center;
+			  width: 100%;
+			  height: 100%;
+			}
+			.spin {
+			  animation: spinDashArray 2s ease-in-out infinite,
+			    spin 8s ease-in-out infinite,
+			    dashOffset 2s linear infinite;
+			  transform-origin: center;
+			}
+			@keyframes spinDashArray {
+			  0% { stroke-dasharray: 270 90; }
+			  50% { stroke-dasharray: 0 360; }
+			  100% { stroke-dasharray: 270 90; }
+			}
+			@keyframes dashOffset {
+			  0% { stroke-dashoffset: 365; }
+			  100% { stroke-dashoffset: 5; }
+			}
+			@keyframes spin {
+			  0% { rotate: 0deg; }
+			  12.5%, 25% { rotate: 270deg; }
+			  37.5%, 50% { rotate: 540deg; }
+			  62.5%, 75% { rotate: 810deg; }
+			  87.5%, 100% { rotate: 1080deg; }
+			}
+			</style>
+			<div class='loader-wrap'>
+			  <svg viewBox='0 0 100 100' width='60' height='60'>
+			    <circle
+			      class='spin'
+			      cx='50' cy='50' r='40'
+			      fill='none'
+			      stroke='#007AFF'
+			      stroke-width='8'
+			      stroke-linecap='round'
+			      pathLength='360'
+			    />
+			  </svg>
+			</div>"
+			RETURN _html
+		lineageTag: 53d0ec65-ddfc-4e43-ba66-12e74c6182ac
+
+	measure Toggle_html =
+			
+			VAR _html =
+			"<style>
+			.toggle-outer {
+			  --size: 40px;
+			  position: relative;
+			  display: inline-block;
+			}
+			.track {
+			  position: relative;
+			  width: calc(2.2 * var(--size));
+			  height: var(--size);
+			  border-radius: var(--size);
+			  background: linear-gradient(90deg, #8B5CF6, #EC4899);
+			  padding: 4px;
+			  box-sizing: border-box;
+			  overflow: hidden;
+			}
+			.knob {
+			  position: absolute;
+			  top: calc(.1 * var(--size));
+			  left: calc(.1 * var(--size));
+			  width: calc(.8 * var(--size));
+			  height: calc(.8 * var(--size));
+			  border-radius: 50%;
+			  background: linear-gradient(45deg, #dedede, #ffffff);
+			  box-shadow: 0 6px 7px rgba(0,0,0,0.3);
+			  transition: left .35s ease-in-out;
+			}
+			#on-target:target ~ .track .knob {
+			  left: calc(1.3 * var(--size));
+			}
+			.hit {
+			  position: absolute;
+			  top: 0;
+			  width: 50%;
+			  height: 100%;
+			  z-index: 5;
+			}
+			.hit-left { left: 0; }
+			.hit-right { left: 50%; }
+			</style>
+			<div class='toggle-outer'>
+			  <span id='off-target'></span>
+			  <span id='on-target'></span>
+			  <div class='track'>
+			    <div class='knob'></div>
+			  </div>
+			  <a href='#on-target' class='hit hit-right' aria-label='on'></a>
+			  <a href='#off-target' class='hit hit-left' aria-label='off'></a>
+			</div>"
+			RETURN _html
+		lineageTag: 40074cf8-a3a2-4f0d-8c9b-b0e1a9e7a7a8
+
+	measure Loader_inovasys =
+			
+			VAR _html =
+			"<style>
+			.inova-loader {
+			  display: flex;
+			  flex-direction: column;
+			  align-items: flex-start;
+			  justify-content: center;
+			}
+			.inova-icon-img {
+			  height: 34px;
+			  margin-left: 170px;
+			  margin-bottom: -8px;
+			}
+			.inova-text-fade {
+			  animation: fadeText 2.4s ease-in-out infinite;
+			}
+			@keyframes fadeText {
+			  0%, 100% { opacity: 1; }
+			  50% { opacity: 0.4; }
+			}
+			</style>
+			<div class='inova-loader'>
+			  <img class='inova-icon-img' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARoAAABhCAYAAAAJIW4MAAAWfmNhQlgAABZ+anVtYgAAAB5qdW1kYzJwYQARABCAAACqADibcQNjMnBhAAAAFlhqdW1iAAAAR2p1bWRjMm1hABEAEIAAAKoAOJtxA3VybjpjMnBhOjk4YWVjNWI5LTU5ZDktNDMwNi1hNzUzLTM4MWVjODRlZjFlNwAAAAOTanVtYgAAAClqdW1kYzJhcwARABCAAACqADibcQNjMnBhLmFzc2VydGlvbnMAAAAAuGp1bWIAAABEanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5pbmdyZWRpZW50LnYzAAAAABhjMnNoJKvaKD5lAwBpjjovnM8+aQAAAGxjYm9yo2lkYzpmb3JtYXRpaW1hZ2UvcG5namluc3RhbmNlSUR4LHhtcDppaWQ6NWQzNDljMTQtYWFhYy00ZTViLWJjNTMtMmI0MzI2NTAxNjhkbHJlbGF0aW9uc2hpcGhwYXJlbnRPZgAAAeJqdW1iAAAAQWp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuYWN0aW9ucy52MgAAAAAYYzJzaPNCpX2/3zgbPIAWllV8a1IAAAGZY2JvcqJnYWN0aW9uc4KiZmFjdGlvbmtjMnBhLm9wZW5lZGpwYXJhbWV0ZXJzoWtpbmdyZWRpZW50c4GiY3VybHgtc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5pbmdyZWRpZW50LnYzZGhhc2hYIKOz97tSlG7wVrduAvhEXmpfw89HDuJK6UP9iWfPrxyQpGZhY3Rpb254HWNvbS5hbnRocm9waWMuY2xhdWRlLnByb3ZpZGVkanBhcmFtZXRlcnOheB9jb20uYW50aHJvcGljLm9yaWdpbi1jb25maWRlbmNlZ3Vua25vd25rZGVzY3JpcHRpb254ZkNsYXVkZSBwcm92aWRlZCB0aGlzIGZpbGUgYXQgdGhlIHJlcXVlc3Qgb2YgYSB1c2VyIGFuZCBtYXkgaGF2ZSBjcmVhdGVkIG9yIG1vZGlmaWVkIHRoZSBmaWxlIGNvbnRlbnRzLm1zb2Z0d2FyZUFnZW50oWRuYW1lZkNsYXVkZXJhbGxBY3Rpb25zSW5jbHVkZWT1AAAAyGp1bWIAAABAanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5oYXNoLmRhdGEAAAAAGGMyc2gdwB5CMjOYU7oOIk73nQZaAAAAgGNib3KlY2FsZ2ZzaGEyNTZjcGFkTQAAAAAAAAAAAAAAAABkaGFzaFgg3jgZZYWoShRnYYpZ9TdGR0DuSu62hOETqSKPHp6ZsidkbmFtZW5qdW1iZiBtYW5pZmVzdGpleGNsdXNpb25zgaJlc3RhcnQYIWZsZW5ndGgZFooAAAI+anVtYgAAACdqdW1kYzJjbAARABCAAACqADibcQNjMnBhLmNsYWltLnYyAAAAAg9jYm9ypWNhbGdmc2hhMjU2aXNpZ25hdHVyZXhNc2VsZiNqdW1iZj0vYzJwYS91cm46YzJwYTo5OGFlYzViOS01OWQ5LTQzMDYtYTc1My0zODFlYzg0ZWYxZTcvYzJwYS5zaWduYXR1cmVqaW5zdGFuY2VJRHgseG1wOmlpZDo1ZmFlYmUwYi04YmRiLTRjNmQtYmFhOS03OWI5N2FjNjUxYjhyY3JlYXRlZF9hc3NlcnRpb25zg6JjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggo7P3u1KUbvBWt24C+EReal/Dz0cO4krpQ/2JZ8+vHJCiY3VybHgqc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5hY3Rpb25zLnYyZGhhc2hYIAdZeblbGDVT5Z8CLB4tBFRF4/FwoZawUEAyJI6Nt42bomN1cmx4KXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaGFzaC5kYXRhZGhhc2hYIIHK/ZDTgcLd911FEOOGq21NdSuPBOn88Q0mbipNfEtndGNsYWltX2dlbmVyYXRvcl9pbmZvo2RuYW1lb0FudGhyb3BpYyBGaWxlc2d2ZXJzaW9uZTEuMC4wa3NwZWNWZXJzaW9uZTIuNC4wAAAQOGp1bWIAAAAoanVtZGMyY3MAEQAQgAAAqgA4m3EDYzJwYS5zaWduYXR1cmUAAAAQCGNib3LShFkCEqIBJhghWQIKMIICBjCCAY2gAwIBAgIUQOWgCu7COdC+uIP6BkIFPWdVEwAwCgYIKoZIzj0EAwMwSTEXMBUGA1UEChMOQW50aHJvcGljLCBQQkMxLjAsBgNVBAMTJUFudGhyb3BpYyBDb250ZW50IENyZWRlbnRpYWxzIFJvb3QgQ0EwHhcNMjYwODA3MTg0MzU2WhcNMjgwODA2MTk0MzU2WjBEMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEpMCcGA1UEAxMgQW50aHJvcGljIENsYXVkZSBDb250ZW50IFNpZ25pbmcwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASYegpry1AYBRTVNL1CpTlbROnY3dey+UrsF9C3phYrATN3ZHf93Mo8RQN0KOUuOn19P4oWNFWe5n2/She9N7eTo1gwVjAOBgNVHQ8BAf8EBAMCB4AwFQYDVR0lBA4wDAYKKwYBBAGD6F4CATAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFM5R4gSBTmRbI/jjxM+aPpzB11zCMAoGCCqGSM49BAMDA2cAMGQCMDFzHRSeAXrSy1WOzkbhPZ6Km2wGTmZ/2gK18k8BQGXyqz88Rdrz6CTX9flAnYNVxgIwcF9c3fVhqmJKpi+UhasNUMko69cyX6STPfta3Q8EjyzDjzoyrol46FP6VFHhvUcJoWNwYWRZDZ4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA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' />
+			  <svg width='320' height='60' viewBox='0 0 320 60'>
+			    <text class='inova-text-fade' x='10' y='42' font-family='Arial, sans-serif' font-weight='700' font-size='40' letter-spacing='3' fill='#FFFFFF'>inovasys</text>
+			  </svg>
+			</div>"
+			RETURN _html
+		lineageTag: 1209e044-3352-4c47-8cb8-2caec3c63b80
+
+	measure Btn_Sales =
+			
+			VAR _html =
+			"<style>
+			.glass-btn-outer {
+			  width: 100%;
+			  height: 100%;
+			  box-sizing: border-box;
+			  padding: 3px;
+			  border-radius: 999px;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			.glass-btn-inner {
+			  width: 100%;
+			  height: 100%;
+			  box-sizing: border-box;
+			  background: #1A1E30;
+			  border-radius: 999px;
+			  display: flex;
+			  align-items: center;
+			  justify-content: center;
+			  gap: 14px;
+			  padding: 8px 16px;
+			}
+			.glass-btn-inner a {
+			  display: flex;
+			  align-items: center;
+			  gap: 10px;
+			  color: #FFFFFF;
+			  text-decoration: none;
+			  min-width: 0;
+			}
+			.glass-btn-inner svg {
+			  width: 36px;
+			  height: 36px;
+			  flex-shrink: 0;
+			  fill: currentColor;
+			}
+			.glass-btn-inner span {
+			  font-family: Arial, sans-serif;
+			  font-size: 19px;
+			  font-weight: 700;
+			  line-height: 1;
+			  white-space: nowrap;
+			  overflow: hidden;
+			  text-overflow: ellipsis;
+			}
+			</style>
+			<div class='glass-btn-outer'>
+			  <div class='glass-btn-inner'>
+			    <a href='#'>
+			      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
+			        <path d='M3 17l6-6 4 4 8-8'/>
+			        <path d='M17 7h4v4'/>
+			      </svg>
+			      <span>Sales Overview</span>
+			    </a>
+			  </div>
+			</div>"
+			RETURN _html
+		lineageTag: 6a5bbedf-02be-482f-9cac-4cb87783bf5b
+
+	measure Btn_Profitability =
+			
+			VAR _html =
+			"<style>
+			.glass-btn-outer {
+			  width: 100%;
+			  height: 100%;
+			  box-sizing: border-box;
+			  padding: 3px;
+			  border-radius: 999px;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			.glass-btn-inner {
+			  width: 100%;
+			  height: 100%;
+			  box-sizing: border-box;
+			  background: #1A1E30;
+			  border-radius: 999px;
+			  display: flex;
+			  align-items: center;
+			  justify-content: center;
+			  gap: 14px;
+			  padding: 8px 16px;
+			}
+			.glass-btn-inner a {
+			  display: flex;
+			  align-items: center;
+			  gap: 10px;
+			  color: #FFFFFF;
+			  text-decoration: none;
+			  min-width: 0;
+			}
+			.glass-btn-inner svg {
+			  width: 36px;
+			  height: 36px;
+			  flex-shrink: 0;
+			  fill: currentColor;
+			}
+			.glass-btn-inner span {
+			  font-family: Arial, sans-serif;
+			  font-size: 19px;
+			  font-weight: 700;
+			  line-height: 1;
+			  white-space: nowrap;
+			  overflow: hidden;
+			  text-overflow: ellipsis;
+			}
+			</style>
+			<div class='glass-btn-outer'>
+			  <div class='glass-btn-inner'>
+			    <a href='#'>
+			      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'>
+			        <path d='M12 7.5a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5Z'/>
+			        <path fill-rule='evenodd' d='M1.5 4.875C1.5 3.839 2.34 3 3.375 3h17.25C21.66 3 22.5 3.84 22.5 4.875v9.75c0 1.036-.84 1.875-1.875 1.875H3.375A1.875 1.875 0 0 1 1.5 14.625v-9.75ZM8.25 9.75a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0ZM18.75 9a.75.75 0 0 0-.75.75v.008c0 .414.336.75.75.75h.008a.75.75 0 0 0 .75-.75V9.75a.75.75 0 0 0-.75-.75h-.008ZM4.5 9.75a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H5.25a.75.75 0 0 1-.75-.75V9.75Z' clip-rule='evenodd'/>
+			        <path d='M2.25 18a.75.75 0 0 0 0 1.5c5.4 0 10.63.722 15.6 2.075 1.19.324 2.4-.558 2.4-1.82V18.75a.75.75 0 0 0-.75-.75H2.25Z'/>
+			      </svg>
+			      <span>Profitability Analysis</span>
+			    </a>
+			  </div>
+			</div>"
+			RETURN _html
+		lineageTag: 41a08ce2-ae1c-430d-91e1-6d15a6fcccd7
+
+	measure Btn_Customer =
+			
+			VAR _html =
+			"<style>
+			.glass-btn-outer {
+			  width: 100%;
+			  height: 100%;
+			  box-sizing: border-box;
+			  padding: 3px;
+			  border-radius: 999px;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			.glass-btn-inner {
+			  width: 100%;
+			  height: 100%;
+			  box-sizing: border-box;
+			  background: #1A1E30;
+			  border-radius: 999px;
+			  display: flex;
+			  align-items: center;
+			  justify-content: center;
+			  gap: 14px;
+			  padding: 8px 16px;
+			}
+			.glass-btn-inner a {
+			  display: flex;
+			  align-items: center;
+			  gap: 10px;
+			  color: #FFFFFF;
+			  text-decoration: none;
+			  min-width: 0;
+			}
+			.glass-btn-inner svg {
+			  width: 36px;
+			  height: 36px;
+			  flex-shrink: 0;
+			  fill: currentColor;
+			}
+			.glass-btn-inner span {
+			  font-family: Arial, sans-serif;
+			  font-size: 19px;
+			  font-weight: 700;
+			  line-height: 1;
+			  white-space: nowrap;
+			  overflow: hidden;
+			  text-overflow: ellipsis;
+			}
+			</style>
+			<div class='glass-btn-outer'>
+			  <div class='glass-btn-inner'>
+			    <a href='#'>
+			      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'>
+			        <path fill-rule='evenodd' d='M8.25 6.75a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0ZM15.75 9.75a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM2.25 9.75a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM6.31 15.117A6.745 6.745 0 0 1 12 12a6.745 6.745 0 0 1 6.709 6.117.75.75 0 0 1-.372.71 8.201 8.201 0 0 1-4.244 1.185A9.699 9.699 0 0 1 12 21a9.699 9.699 0 0 1-2.093-.238.75.75 0 0 1-.365-.343 6.75 6.75 0 0 1-.53-1.075.75.75 0 0 1 .043-.658 4.5 4.5 0 0 1 1.036-1.393.75.75 0 0 0 .14-.925 6.706 6.706 0 0 0-3.921-1.25Z' clip-rule='evenodd'/>
+			        <path d='M5.082 14.254a8.287 8.287 0 0 0-1.308 5.135A9.687 9.687 0 0 1 2.01 18.95l-.115-.04a.563.563 0 0 1-.373-.487l-.01-.121a3.75 3.75 0 0 1 3.57-4.047ZM20.226 19.389a8.287 8.287 0 0 0-1.308-5.135 3.75 3.75 0 0 1 3.57 4.047l-.01.121a.563.563 0 0 1-.373.486l-.115.04c-.567.2-1.156.349-1.764.441Z'/>
+			      </svg>
+			      <span>Customer &amp; Product</span>
+			    </a>
+			  </div>
+			</div>"
+			RETURN _html
+		lineageTag: 6b63e238-6adc-4c74-9794-7a491f9de2c2
+
+	/// KPI card displaying total quantity sold (from measure [Total Quantity]), shown as a dark-themed styled HTML card with a package/box icon
+	measure KPI_TotalQuantity =
+			
+			VAR _val = [Total Quantity]
+			VAR _fmt =
+			    SWITCH(
+			        TRUE(),
+			        _val >= 1000000, FORMAT(DIVIDE(_val,1000000),"0.00") & "M",
+			        _val >= 1000, FORMAT(DIVIDE(_val,1000),"0") & "K",
+			        FORMAT(_val,"0")
+			    )
+			VAR _html =
+			"<style>
+			.kpi-card {
+			  position: relative;
+			  background: #1A1E30;
+			  border-radius: 12px;
+			  padding: 20px;
+			  box-sizing: border-box;
+			  height: 100%;
+			  display: flex;
+			  flex-direction: column;
+			  justify-content: center;
+			  gap: 6px;
+			  font-family: Arial, sans-serif;
+			  animation: glowPulse 4s ease-in-out infinite;
+			}
+			@keyframes glowPulse {
+			  0% { box-shadow: 0 0 26px 4px rgba(34,211,238,0.45); }
+			  33% { box-shadow: 0 0 26px 4px rgba(139,92,246,0.45); }
+			  66% { box-shadow: 0 0 26px 4px rgba(236,72,153,0.45); }
+			  100% { box-shadow: 0 0 26px 4px rgba(34,211,238,0.45); }
+			}
+			.kpi-icon {
+			  position: absolute;
+			  top: 14px;
+			  right: 16px;
+			  width: 34px;
+			  height: 34px;
+			  animation: bounceIcon 2.2s ease-in-out infinite;
+			}
+			@keyframes bounceIcon {
+			  0%, 100% { transform: translateY(0); }
+			  50% { transform: translateY(-6px); }
+			}
+			.kpi-label {
+			  font-size: 30px;
+			  color: #8F96B2;
+			}
+			.kpi-value {
+			  font-size: 34px;
+			  font-weight: 700;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  -webkit-background-clip: text;
+			  background-clip: text;
+			  color: transparent;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			</style>
+			<div class='kpi-card'>
+			  <svg class='kpi-icon' viewBox='0 0 24 24'>
+			    <defs>
+			      <linearGradient id='g1' x1='0' y1='0' x2='1' y2='1'>
+			        <stop offset='0%' stop-color='#22D3EE'/>
+			        <stop offset='50%' stop-color='#8B5CF6'/>
+			        <stop offset='100%' stop-color='#EC4899'/>
+			      </linearGradient>
+			    </defs>
+			    <path fill='url(#g1)' d='M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9Z' opacity='0.25'/>
+			    <path fill='url(#g1)' d='M3 7.5 12 12m0 0 9-4.5M12 12v9'/>
+			    <path fill='none' stroke='url(#g1)' stroke-width='1.6' stroke-linejoin='round' d='M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9Z'/>
+			    <path fill='none' stroke='url(#g1)' stroke-width='1.6' stroke-linejoin='round' d='M3 7.5 12 12l9-4.5M12 12v9'/>
+			  </svg>
+			  <span class='kpi-label'>Total Quantity</span>
+			  <span class='kpi-value'>" & _fmt & "</span>
+			</div>"
+			RETURN _html
+		lineageTag: b1f395f6-cc6d-42de-a178-87422aa67965
+
+	measure Loader_inovasys_icon_white =
+			
+			VAR _html =
+			"<style>
+			.inova-loader {
+			  display: flex;
+			  flex-direction: column;
+			  align-items: flex-start;
+			  justify-content: center;
+			}
+			.inova-icon-img {
+			  height: 34px;
+			  margin-left: 170px;
+			  margin-bottom: -8px;
+			}
+			.inova-text-fade {
+			  animation: fadeText 2.4s ease-in-out infinite;
+			}
+			@keyframes fadeText {
+			  0%, 100% { opacity: 1; }
+			  50% { opacity: 0.4; }
+			}
+			</style>
+			<div class='inova-loader'>
+			  <img class='inova-icon-img' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARoAAABhCAYAAAAJIW4MAAAWfmNhQlgAABZ+anVtYgAAAB5qdW1kYzJwYQARABCAAACqADibcQNjMnBhAAAAFlhqdW1iAAAAR2p1bWRjMm1hABEAEIAAAKoAOJtxA3VybjpjMnBhOjk4YWVjNWI5LTU5ZDktNDMwNi1hNzUzLTM4MWVjODRlZjFlNwAAAAOTanVtYgAAAClqdW1kYzJhcwARABCAAACqADibcQNjMnBhLmFzc2VydGlvbnMAAAAAuGp1bWIAAABEanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5pbmdyZWRpZW50LnYzAAAAABhjMnNoJKvaKD5lAwBpjjovnM8+aQAAAGxjYm9yo2lkYzpmb3JtYXRpaW1hZ2UvcG5namluc3RhbmNlSUR4LHhtcDppaWQ6NWQzNDljMTQtYWFhYy00ZTViLWJjNTMtMmI0MzI2NTAxNjhkbHJlbGF0aW9uc2hpcGhwYXJlbnRPZgAAAeJqdW1iAAAAQWp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuYWN0aW9ucy52MgAAAAAYYzJzaPNCpX2/3zgbPIAWllV8a1IAAAGZY2JvcqJnYWN0aW9uc4KiZmFjdGlvbmtjMnBhLm9wZW5lZGpwYXJhbWV0ZXJzoWtpbmdyZWRpZW50c4GiY3VybHgtc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5pbmdyZWRpZW50LnYzZGhhc2hYIKOz97tSlG7wVrduAvhEXmpfw89HDuJK6UP9iWfPrxyQpGZhY3Rpb254HWNvbS5hbnRocm9waWMuY2xhdWRlLnByb3ZpZGVkanBhcmFtZXRlcnOheB9jb20uYW50aHJvcGljLm9yaWdpbi1jb25maWRlbmNlZ3Vua25vd25rZGVzY3JpcHRpb254ZkNsYXVkZSBwcm92aWRlZCB0aGlzIGZpbGUgYXQgdGhlIHJlcXVlc3Qgb2YgYSB1c2VyIGFuZCBtYXkgaGF2ZSBjcmVhdGVkIG9yIG1vZGlmaWVkIHRoZSBmaWxlIGNvbnRlbnRzLm1zb2Z0d2FyZUFnZW50oWRuYW1lZkNsYXVkZXJhbGxBY3Rpb25zSW5jbHVkZWT1AAAAyGp1bWIAAABAanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5oYXNoLmRhdGEAAAAAGGMyc2gdwB5CMjOYU7oOIk73nQZaAAAAgGNib3KlY2FsZ2ZzaGEyNTZjcGFkTQAAAAAAAAAAAAAAAABkaGFzaFgg3jgZZYWoShRnYYpZ9TdGR0DuSu62hOETqSKPHp6ZsidkbmFtZW5qdW1iZiBtYW5pZmVzdGpleGNsdXNpb25zgaJlc3RhcnQYIWZsZW5ndGgZFooAAAI+anVtYgAAACdqdW1kYzJjbAARABCAAACqADibcQNjMnBhLmNsYWltLnYyAAAAAg9jYm9ypWNhbGdmc2hhMjU2aXNpZ25hdHVyZXhNc2VsZiNqdW1iZj0vYzJwYS91cm46YzJwYTo5OGFlYzViOS01OWQ5LTQzMDYtYTc1My0zODFlYzg0ZWYxZTcvYzJwYS5zaWduYXR1cmVqaW5zdGFuY2VJRHgseG1wOmlpZDo1ZmFlYmUwYi04YmRiLTRjNmQtYmFhOS03OWI5N2FjNjUxYjhyY3JlYXRlZF9hc3NlcnRpb25zg6JjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggo7P3u1KUbvBWt24C+EReal/Dz0cO4krpQ/2JZ8+vHJCiY3VybHgqc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5hY3Rpb25zLnYyZGhhc2hYIAdZeblbGDVT5Z8CLB4tBFRF4/FwoZawUEAyJI6Nt42bomN1cmx4KXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaGFzaC5kYXRhZGhhc2hYIIHK/ZDTgcLd911FEOOGq21NdSuPBOn88Q0mbipNfEtndGNsYWltX2dlbmVyYXRvcl9pbmZvo2RuYW1lb0FudGhyb3BpYyBGaWxlc2d2ZXJzaW9uZTEuMC4wa3NwZWNWZXJzaW9uZTIuNC4wAAAQOGp1bWIAAAAoanVtZGMyY3MAEQAQgAAAqgA4m3EDYzJwYS5zaWduYXR1cmUAAAAQCGNib3LShFkCEqIBJhghWQIKMIICBjCCAY2gAwIBAgIUQOWgCu7COdC+uIP6BkIFPWdVEwAwCgYIKoZIzj0EAwMwSTEXMBUGA1UEChMOQW50aHJvcGljLCBQQkMxLjAsBgNVBAMTJUFudGhyb3BpYyBDb250ZW50IENyZWRlbnRpYWxzIFJvb3QgQ0EwHhcNMjYwODA3MTg0MzU2WhcNMjgwODA2MTk0MzU2WjBEMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEpMCcGA1UEAxMgQW50aHJvcGljIENsYXVkZSBDb250ZW50IFNpZ25pbmcwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASYegpry1AYBRTVNL1CpTlbROnY3dey+UrsF9C3phYrATN3ZHf93Mo8RQN0KOUuOn19P4oWNFWe5n2/She9N7eTo1gwVjAOBgNVHQ8BAf8EBAMCB4AwFQYDVR0lBA4wDAYKKwYBBAGD6F4CATAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFM5R4gSBTmRbI/jjxM+aPpzB11zCMAoGCCqGSM49BAMDA2cAMGQCMDFzHRSeAXrSy1WOzkbhPZ6Km2wGTmZ/2gK18k8BQGXyqz88Rdrz6CTX9flAnYNVxgIwcF9c3fVhqmJKpi+UhasNUMko69cyX6STPfta3Q8EjyzDjzoyrol46FP6VFHhvUcJoWNwYWRZDZ4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA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' />
+			  <svg width='320' height='60' viewBox='0 0 320 60'>
+			    <text class='inova-text-fade' x='10' y='42' font-family='Arial, sans-serif' font-weight='700' font-size='40' letter-spacing='3' fill='#F#000000'>inovasys</text>
+			  </svg>
+			</div>"
+			RETURN _html
+		lineageTag: 482a3778-860c-4753-b429-bef68dc361a1
+
+	/// KPI card displaying total sales value (from measure [Total Sales]), shown as a dark-themed styled HTML card with a currency/dollar icon
+	measure KPI_TotalSales =
+			
+			VAR _val = [Total Sales]
+			VAR _fmt =
+			    SWITCH(
+			        TRUE(),
+			        _val >= 1000000, FORMAT(DIVIDE(_val,1000000),"0.00") & "M",
+			        _val >= 1000, FORMAT(DIVIDE(_val,1000),"0") & "K",
+			        FORMAT(_val,"0")
+			    )
+			VAR _html =
+			"<style>
+			.kpi-card {
+			  position: relative;
+			  background: #1A1E30;
+			  border-radius: 12px;
+			  padding: 20px;
+			  box-sizing: border-box;
+			  height: 100%;
+			  display: flex;
+			  flex-direction: column;
+			  justify-content: center;
+			  gap: 6px;
+			  font-family: Arial, sans-serif;
+			  animation: glowPulse 4s ease-in-out infinite;
+			}
+			@keyframes glowPulse {
+			  0% { box-shadow: 0 0 26px 4px rgba(34,211,238,0.45); }
+			  33% { box-shadow: 0 0 26px 4px rgba(139,92,246,0.45); }
+			  66% { box-shadow: 0 0 26px 4px rgba(236,72,153,0.45); }
+			  100% { box-shadow: 0 0 26px 4px rgba(34,211,238,0.45); }
+			}
+			.kpi-icon {
+			  position: absolute;
+			  top: 14px;
+			  right: 16px;
+			  width: 34px;
+			  height: 34px;
+			  animation: bounceIcon 2.2s ease-in-out infinite;
+			}
+			@keyframes bounceIcon {
+			  0%, 100% { transform: translateY(0); }
+			  50% { transform: translateY(-6px); }
+			}
+			.kpi-label {
+			  font-size: 30px;
+			  color: #8F96B2;
+			}
+			.kpi-value {
+			  font-size: 34px;
+			  font-weight: 700;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  -webkit-background-clip: text;
+			  background-clip: text;
+			  color: transparent;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			</style>
+			<div class='kpi-card'>
+			  <svg class='kpi-icon' viewBox='0 0 24 24'>
+			    <defs>
+			      <linearGradient id='g2' x1='0' y1='0' x2='1' y2='1'>
+			        <stop offset='0%' stop-color='#22D3EE'/>
+			        <stop offset='50%' stop-color='#8B5CF6'/>
+			        <stop offset='100%' stop-color='#EC4899'/>
+			      </linearGradient>
+			    </defs>
+			    <circle fill='none' stroke='url(#g2)' stroke-width='1.6' cx='12' cy='12' r='9.25'/>
+			    <path fill='url(#g2)' fill-rule='evenodd' d='M12.75 6.75a.75.75 0 0 0-1.5 0v.373c-1.293.318-2.25 1.412-2.25 2.71 0 1.545 1.354 2.646 2.777 3.036l.723.197c1.05.286 1.5.837 1.5 1.434 0 .78-.795 1.5-2 1.5-.94 0-1.717-.44-1.972-1.021a.75.75 0 0 0-1.372.607c.49 1.113 1.598 1.788 2.594 1.96v.454a.75.75 0 0 0 1.5 0v-.373c1.293-.318 2.25-1.412 2.25-2.71 0-1.545-1.354-2.646-2.777-3.036l-.723-.197c-1.05-.286-1.5-.837-1.5-1.434 0-.78.795-1.5 2-1.5.85 0 1.573.36 1.895.865a.75.75 0 1 0 1.26-.813c-.552-.86-1.53-1.386-2.655-1.548v-.454Z' clip-rule='evenodd'/>
+			  </svg>
+			  <span class='kpi-label'>Total Sales</span>
+			  <span class='kpi-value'>" & _fmt & "</span>
+			</div>"
+			RETURN _html
+		lineageTag: eff1caee-99a0-4e20-bb90-0b88593f3b0e
+
+	/// KPI card displaying total freight cost (from measure [Total Freight]), shown as a dark-themed styled HTML card with a shipping/truck icon
+	measure KPI_TotalFreight =
+			
+			VAR _val = [Total Freight]
+			VAR _fmt =
+			    SWITCH(
+			        TRUE(),
+			        _val >= 1000000, FORMAT(DIVIDE(_val,1000000),"0.00") & "M",
+			        _val >= 1000, FORMAT(DIVIDE(_val,1000),"0.00") & "K",
+			        FORMAT(_val,"0")
+			    )
+			VAR _html =
+			"<style>
+			.kpi-card {
+			  position: relative;
+			  background: #1A1E30;
+			  border-radius: 12px;
+			  padding: 20px;
+			  box-sizing: border-box;
+			  height: 100%;
+			  display: flex;
+			  flex-direction: column;
+			  justify-content: center;
+			  gap: 6px;
+			  font-family: Arial, sans-serif;
+			  animation: glowPulse 4s ease-in-out infinite;
+			}
+			@keyframes glowPulse {
+			  0% { box-shadow: 0 0 26px 4px rgba(34,211,238,0.45); }
+			  33% { box-shadow: 0 0 26px 4px rgba(139,92,246,0.45); }
+			  66% { box-shadow: 0 0 26px 4px rgba(236,72,153,0.45); }
+			  100% { box-shadow: 0 0 26px 4px rgba(34,211,238,0.45); }
+			}
+			.kpi-icon {
+			  position: absolute;
+			  top: 14px;
+			  right: 16px;
+			  width: 34px;
+			  height: 34px;
+			  animation: bounceIcon 2.2s ease-in-out infinite;
+			}
+			@keyframes bounceIcon {
+			  0%, 100% { transform: translateY(0); }
+			  50% { transform: translateY(-6px); }
+			}
+			.kpi-label {
+			  font-size: 30px;
+			  color: #8F96B2;
+			}
+			.kpi-value {
+			  font-size: 34px;
+			  font-weight: 700;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  -webkit-background-clip: text;
+			  background-clip: text;
+			  color: transparent;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			</style>
+			<div class='kpi-card'>
+			  <svg class='kpi-icon' viewBox='0 0 24 24'>
+			    <defs>
+			      <linearGradient id='g3' x1='0' y1='0' x2='1' y2='1'>
+			        <stop offset='0%' stop-color='#22D3EE'/>
+			        <stop offset='50%' stop-color='#8B5CF6'/>
+			        <stop offset='100%' stop-color='#EC4899'/>
+			      </linearGradient>
+			    </defs>
+			    <path fill='url(#g3)' d='M8.25 18.75a1.5 1.5 0 0 1-3 0 1.5 1.5 0 0 1 3 0ZM19.5 18.75a1.5 1.5 0 0 1-3 0 1.5 1.5 0 0 1 3 0Z'/>
+			    <path fill='url(#g3)' fill-rule='evenodd' d='M3.375 4.5C2.339 4.5 1.5 5.34 1.5 6.375V13.5h12V6.375c0-1.036-.84-1.875-1.875-1.875h-8.25ZM13.5 15h-12v.75c0 1.035.84 1.875 1.875 1.875H4.5a3 3 0 1 1 6 0h4.5a3 3 0 1 1 6 0h.375A1.875 1.875 0 0 0 23.25 15.75V12.75a.75.75 0 0 0-.22-.53l-3.5-3.5A.75.75 0 0 0 19 8.5H15v6.5Z' clip-rule='evenodd'/>
+			  </svg>
+			  <span class='kpi-label'>Total Freight</span>
+			  <span class='kpi-value'>" & _fmt & "</span>
+			</div>"
+			RETURN _html
+		lineageTag: de4f63c7-5fe4-488e-9bf3-ca8dd358d34b
+
+	/// KPI card displaying the count of risky orders (from measure [Risky Orders Count]), shown as a dark-themed styled HTML card with a warning icon
+	measure KPI_RiskyOrders =
+			
+			VAR _val = [Risky Orders Count]
+			VAR _fmt =
+			    SWITCH(
+			        TRUE(),
+			        _val >= 1000000, FORMAT(DIVIDE(_val,1000000),"0.00") & "M",
+			        _val >= 1000, FORMAT(DIVIDE(_val,1000),"0") & "K",
+			        FORMAT(_val,"0")
+			    )
+			VAR _html =
+			"<style>
+			.kpi-card {
+			  position: relative;
+			  background: #1A1E30;
+			  border-radius: 12px;
+			  padding: 20px;
+			  box-sizing: border-box;
+			  height: 100%;
+			  display: flex;
+			  flex-direction: column;
+			  justify-content: center;
+			  gap: 6px;
+			  font-family: Arial, sans-serif;
+			  animation: glowPulse 4s ease-in-out infinite;
+			}
+			@keyframes glowPulse {
+			  0% { box-shadow: 0 0 26px 4px rgba(34,211,238,0.45); }
+			  33% { box-shadow: 0 0 26px 4px rgba(139,92,246,0.45); }
+			  66% { box-shadow: 0 0 26px 4px rgba(236,72,153,0.45); }
+			  100% { box-shadow: 0 0 26px 4px rgba(34,211,238,0.45); }
+			}
+			.kpi-icon {
+			  position: absolute;
+			  top: 14px;
+			  right: 16px;
+			  width: 34px;
+			  height: 34px;
+			  animation: bounceIcon 2.2s ease-in-out infinite;
+			}
+			@keyframes bounceIcon {
+			  0%, 100% { transform: translateY(0); }
+			  50% { transform: translateY(-6px); }
+			}
+			.kpi-label {
+			  font-size: 30px;
+			  color: #8F96B2;
+			}
+			.kpi-value {
+			  font-size: 34px;
+			  font-weight: 700;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  -webkit-background-clip: text;
+			  background-clip: text;
+			  color: transparent;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			</style>
+			<div class='kpi-card'>
+			  <svg class='kpi-icon' viewBox='0 0 24 24'>
+			    <defs>
+			      <linearGradient id='g4' x1='0' y1='0' x2='1' y2='1'>
+			        <stop offset='0%' stop-color='#22D3EE'/>
+			        <stop offset='50%' stop-color='#8B5CF6'/>
+			        <stop offset='100%' stop-color='#EC4899'/>
+			      </linearGradient>
+			    </defs>
+			    <path fill='url(#g4)' fill-rule='evenodd' d='M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z' clip-rule='evenodd'/>
+			  </svg>
+			  <span class='kpi-label'>Risky Orders Count</span>
+			  <span class='kpi-value'>" & _fmt & "</span>
+			</div>"
+			RETURN _html
+		lineageTag: a6b0c8d7-3246-4032-8bc6-c89839a8d4b5
+
+	measure Map_html =
+			
+			VAR _svg = "<svg width='100%' height='100%' viewBox='0 0 700 350' preserveAspectRatio='xMidYMid meet'><rect x='0' y='0' width='700' height='350' fill='#1A1E30'/><line x1='0.0' y1='0' x2='0.0' y2='350' stroke='#2A2F45' stroke-width='1'/><line x1='58.3' y1='0' x2='58.3' y2='350' stroke='#2A2F45' stroke-width='1'/><line x1='116.7' y1='0' x2='116.7' y2='350' stroke='#2A2F45' stroke-width='1'/><line x1='175.0' y1='0' x2='175.0' y2='350' stroke='#2A2F45' stroke-width='1'/><line x1='233.3' y1='0' x2='233.3' y2='350' stroke='#2A2F45' stroke-width='1'/><line x1='291.7' y1='0' x2='291.7' y2='350' stroke='#2A2F45' stroke-width='1'/><line x1='350.0' y1='0' x2='350.0' y2='350' stroke='#2A2F45' stroke-width='1'/><line x1='408.3' y1='0' x2='408.3' y2='350' stroke='#2A2F45' stroke-width='1'/><line x1='466.7' y1='0' x2='466.7' y2='350' stroke='#2A2F45' stroke-width='1'/><line x1='525.0' y1='0' x2='525.0' y2='350' stroke='#2A2F45' stroke-width='1'/><line x1='583.3' y1='0' x2='583.3' y2='350' stroke='#2A2F45' stroke-width='1'/><line x1='641.7' y1='0' x2='641.7' y2='350' stroke='#2A2F45' stroke-width='1'/><line x1='700.0' y1='0' x2='700.0' y2='350' stroke='#2A2F45' stroke-width='1'/><line x1='0' y1='350.0' x2='700' y2='350.0' stroke='#2A2F45' stroke-width='1'/><line x1='0' y1='291.7' x2='700' y2='291.7' stroke='#2A2F45' stroke-width='1'/><line x1='0' y1='233.3' x2='700' y2='233.3' stroke='#2A2F45' stroke-width='1'/><line x1='0' y1='175.0' x2='700' y2='175.0' stroke='#2A2F45' stroke-width='1'/><line x1='0' y1='116.7' x2='700' y2='116.7' stroke='#2A2F45' stroke-width='1'/><line x1='0' y1='58.3' x2='700' y2='58.3' stroke='#2A2F45' stroke-width='1'/><line x1='0' y1='0.0' x2='700' y2='0.0' stroke='#2A2F45' stroke-width='1'/><circle class='geo-dot' style='animation-delay:0.2s' cx='361.8' cy='76.3' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:0.4s' cx='142.6' cy='106.8' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:0.6s' cx='58.5' cy='56.0' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:0.8s' cx='369.8' cy='65.8' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:1.0s' cx='354.2' cy='94.5' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:1.2s' cx='215.2' cy='155.4' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:1.4s' cx='368.8' cy='86.1' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:1.6s' cx='376.1' cy='72.9' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:1.8s' cx='364.5' cy='83.7' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:0.0s' cx='124.1' cy='90.2' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:0.2s' cx='380.0' cy='53.0' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:0.4s' cx='374.4' cy='73.1' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:0.6s' cx='358.5' cy='76.1' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:0.8s' cx='236.5' cy='242.3' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:1.0s' cx='131.2' cy='85.6' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:1.2s' cx='410.7' cy='116.6' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:1.4s' cx='258.5' cy='219.5' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:1.6s' cx='219.9' cy='154.6' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:1.8s' cx='358.6' cy='77.0' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:0.0s' cx='333.5' cy='74.1' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:0.2s' cx='347.5' cy='76.3' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:0.4s' cx='378.0' cy='75.6' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:0.6s' cx='178.3' cy='93.3' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:0.8s' cx='110.7' cy='89.3' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:1.0s' cx='366.9' cy='77.6' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:1.2s' cx='361.9' cy='85.2' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:1.4s' cx='410.7' cy='116.6' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:1.6s' cx='380.0' cy='83.5' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:1.8s' cx='398.5' cy='58.0' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:0.0s' cx='225.6' cy='153.6' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:0.2s' cx='112.4' cy='82.3' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:0.4s' cx='374.4' cy='66.7' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:0.6s' cx='363.5' cy='76.0' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:0.8s' cx='138.6' cy='91.7' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:1.0s' cx='374.1' cy='75.2' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:1.2s' cx='355.9' cy='76.6' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:1.4s' cx='332.2' cy='99.7' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:1.6s' cx='349.7' cy='74.8' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:1.8s' cx='393.1' cy='47.5' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:0.0s' cx='359.4' cy='86.0' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:0.2s' cx='342.8' cy='96.4' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:0.4s' cx='366.5' cy='78.8' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:0.6s' cx='360.4' cy='90.8' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:0.8s' cx='157.2' cy='137.2' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:1.0s' cx='206.9' cy='86.5' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:1.2s' cx='372.5' cy='81.4' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:1.4s' cx='364.8' cy='74.0' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:1.6s' cx='347.0' cy='83.2' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:1.8s' cx='399.5' cy='48.6' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:0.0s' cx='354.6' cy='80.0' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:0.2s' cx='111.5' cy='86.5' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:0.4s' cx='370.7' cy='88.1' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:0.6s' cx='357.8' cy='79.2' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:0.8s' cx='263.6' cy='218.7' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:1.0s' cx='266.1' cy='219.5' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:1.2s' cx='375.4' cy='82.1' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:1.4s' cx='209.6' cy='159.9' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:1.6s' cx='112.0' cy='101.6' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:1.8s' cx='259.3' cy='220.8' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:0.0s' cx='112.1' cy='82.4' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:0.2s' cx='338.4' cy='102.3' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:0.4s' cx='369.5' cy='60.3' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:0.6s' cx='365.1' cy='80.5' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:0.8s' cx='367.8' cy='80.1' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:1.0s' cx='365.0' cy='87.4' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:1.2s' cx='352.8' cy='90.2' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:1.4s' cx='110.7' cy='79.7' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:1.6s' cx='110.6' cy='79.2' r='4.5' fill='#8B5CF6'/><circle class='geo-dot' style='animation-delay:1.8s' cx='354.1' cy='80.1' r='4.5' fill='#EC4899'/><circle class='geo-dot' style='animation-delay:0.0s' cx='119.9' cy='85.4' r='4.5' fill='#22D3EE'/><circle class='geo-dot' style='animation-delay:0.2s' cx='390.9' cy='73.4' r='4.5' fill='#8B5CF6'/></svg>"
+			VAR _html =
+			"<style>
+			.geo-wrap {
+			  width: 100%;
+			  height: 100%;
+			  box-sizing: border-box;
+			  background: #1A1E30;
+			  border-radius: 12px;
+			  display: flex;
+			  align-items: center;
+			  justify-content: center;
+			  overflow: hidden;
+			}
+			.geo-dot {
+			  animation: dotPulse 2.4s ease-in-out infinite;
+			  transform-origin: center;
+			}
+			@keyframes dotPulse {
+			  0%, 100% { opacity: 0.75; r: 4.5; }
+			  50% { opacity: 1; r: 6.5; }
+			}
+			</style>
+			<div class='geo-wrap'>" & _svg & "</div>"
+			RETURN _html
+		lineageTag: b20b21e9-3c17-4b59-bb74-a0f141603e22
+
+	measure Btn_Sales2 =
+			
+			VAR _html =
+			"<style>
+			.glass-btn-outer {
+			  width: 100%;
+			  height: 100%;
+			  box-sizing: border-box;
+			  padding: 3px;
+			  border-radius: 999px;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			.glass-btn-inner {
+			  width: 100%;
+			  height: 100%;
+			  box-sizing: border-box;
+			  background: #FFFFFF;
+			  border-radius: 999px;
+			  display: flex;
+			  align-items: center;
+			  justify-content: center;
+			  gap: 16px;
+			  padding: 10px 20px;
+			}
+			.glass-btn-inner a {
+			  display: flex;
+			  align-items: center;
+			  gap: 14px;
+			  color: #1A1E30;
+			  text-decoration: none;
+			}
+			.glass-btn-inner svg {
+			  width: 42px;
+			  height: 42px;
+			  flex-shrink: 0;
+			  fill: currentColor;
+			}
+			.glass-btn-inner span {
+			  font-family: Arial, sans-serif;
+			  font-size: 26px;
+			  font-weight: 700;
+			  line-height: 1;
+			  white-space: nowrap;
+			  color: #1A1E30;
+			}
+			</style>
+			<div class='glass-btn-outer'>
+			  <div class='glass-btn-inner'>
+			    <a href='#'>
+			      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
+			        <path d='M3 17l6-6 4 4 8-8'/>
+			        <path d='M17 7h4v4'/>
+			      </svg>
+			      <span>Sales Overview</span>
+			    </a>
+			  </div>
+			</div>"
+			RETURN _html
+		lineageTag: 05da15d9-116c-4195-aa91-55f5e9169c24
+
+	measure Btn_Profitability2 =
+			
+			VAR _html =
+			"<style>
+			.glass-btn-outer {
+			  width: 100%;
+			  height: 100%;
+			  box-sizing: border-box;
+			  padding: 3px;
+			  border-radius: 999px;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			.glass-btn-inner {
+			  width: 100%;
+			  height: 100%;
+			  box-sizing: border-box;
+			  background: #FFFFFF;
+			  border-radius: 999px;
+			  display: flex;
+			  align-items: center;
+			  justify-content: center;
+			  gap: 14px;
+			  padding: 8px 16px;
+			}
+			.glass-btn-inner a {
+			  display: flex;
+			  align-items: center;
+			  gap: 10px;
+			  color: #1A1E30;
+			  text-decoration: none;
+			  min-width: 0;
+			}
+			.glass-btn-inner svg {
+			  width: 36px;
+			  height: 36px;
+			  flex-shrink: 0;
+			  fill: currentColor;
+			}
+			.glass-btn-inner span {
+			  font-family: Arial, sans-serif;
+			  font-size: 19px;
+			  font-weight: 700;
+			  line-height: 1;
+			  white-space: nowrap;
+			  overflow: hidden;
+			  text-overflow: ellipsis;
+			  color: #1A1E30;
+			}
+			</style>
+			<div class='glass-btn-outer'>
+			  <div class='glass-btn-inner'>
+			    <a href='#'>
+			      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'>
+			        <path d='M12 7.5a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5Z'/>
+			        <path fill-rule='evenodd' d='M1.5 4.875C1.5 3.839 2.34 3 3.375 3h17.25C21.66 3 22.5 3.84 22.5 4.875v9.75c0 1.036-.84 1.875-1.875 1.875H3.375A1.875 1.875 0 0 1 1.5 14.625v-9.75ZM8.25 9.75a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0ZM18.75 9a.75.75 0 0 0-.75.75v.008c0 .414.336.75.75.75h.008a.75.75 0 0 0 .75-.75V9.75a.75.75 0 0 0-.75-.75h-.008ZM4.5 9.75a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H5.25a.75.75 0 0 1-.75-.75V9.75Z' clip-rule='evenodd'/>
+			        <path d='M2.25 18a.75.75 0 0 0 0 1.5c5.4 0 10.63.722 15.6 2.075 1.19.324 2.4-.558 2.4-1.82V18.75a.75.75 0 0 0-.75-.75H2.25Z'/>
+			      </svg>
+			      <span>Profitability Analysis</span>
+			    </a>
+			  </div>
+			</div>"
+			RETURN _html
+		lineageTag: 27e925a9-da54-4ec9-a4fc-215d87484e03
+
+	measure Btn_Customer2 =
+			
+			VAR _html =
+			"<style>
+			.glass-btn-outer {
+			  width: 100%;
+			  height: 100%;
+			  box-sizing: border-box;
+			  padding: 3px;
+			  border-radius: 999px;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			.glass-btn-inner {
+			  width: 100%;
+			  height: 100%;
+			  box-sizing: border-box;
+			  background: #FFFFFF;
+			  border-radius: 999px;
+			  display: flex;
+			  align-items: center;
+			  justify-content: center;
+			  gap: 14px;
+			  padding: 8px 16px;
+			}
+			.glass-btn-inner a {
+			  display: flex;
+			  align-items: center;
+			  gap: 10px;
+			  color: #1A1E30;
+			  text-decoration: none;
+			  min-width: 0;
+			}
+			.glass-btn-inner svg {
+			  width: 36px;
+			  height: 36px;
+			  flex-shrink: 0;
+			  fill: currentColor;
+			}
+			.glass-btn-inner span {
+			  font-family: Arial, sans-serif;
+			  font-size: 19px;
+			  font-weight: 700;
+			  line-height: 1;
+			  white-space: nowrap;
+			  overflow: hidden;
+			  text-overflow: ellipsis;
+			  color: #1A1E30;
+			}
+			</style>
+			<div class='glass-btn-outer'>
+			  <div class='glass-btn-inner'>
+			    <a href='#'>
+			      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'>
+			        <path fill-rule='evenodd' d='M8.25 6.75a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0ZM15.75 9.75a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM2.25 9.75a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM6.31 15.117A6.745 6.745 0 0 1 12 12a6.745 6.745 0 0 1 6.709 6.117.75.75 0 0 1-.372.71 8.201 8.201 0 0 1-4.244 1.185A9.699 9.699 0 0 1 12 21a9.699 9.699 0 0 1-2.093-.238.75.75 0 0 1-.365-.343 6.75 6.75 0 0 1-.53-1.075.75.75 0 0 1 .043-.658 4.5 4.5 0 0 1 1.036-1.393.75.75 0 0 0 .14-.925 6.706 6.706 0 0 0-3.921-1.25Z' clip-rule='evenodd'/>
+			        <path d='M5.082 14.254a8.287 8.287 0 0 0-1.308 5.135A9.687 9.687 0 0 1 2.01 18.95l-.115-.04a.563.563 0 0 1-.373-.487l-.01-.121a3.75 3.75 0 0 1 3.57-4.047ZM20.226 19.389a8.287 8.287 0 0 0-1.308-5.135 3.75 3.75 0 0 1 3.57 4.047l-.01.121a.563.563 0 0 1-.373.486l-.115.04c-.567.2-1.156.349-1.764.441Z'/>
+			      </svg>
+			      <span>Customer &amp; Product</span>
+			    </a>
+			  </div>
+			</div>"
+			RETURN _html
+		lineageTag: 7edeb18f-5b33-4dc9-b87b-ab907f0e5644
+
+	measure NavCard_overView2 =
+			
+			VAR _html =
+			"<style>
+			  .card-wrap {
+			    position: fixed;
+			    inset: 0;
+			    margin: 0;
+			    padding: 18px;
+			    box-sizing: border-box;
+			    display: flex;
+			    align-items: center;
+			    justify-content: center;
+			    background: #FFFFFF;
+			  }
+			  .card {
+			    position: relative;
+			    width: 100%;
+			    height: 100%;
+			    box-sizing: border-box;
+			    background-color: #FFFFFF;
+			    display: flex;
+			    flex-direction: column;
+			    justify-content: flex-start;
+			    padding: 28px;
+			    gap: 12px;
+			    border-radius: 8px;
+			    cursor: pointer;
+			    color: #1A1E30;
+			  }
+			  .card::before {
+			    content: '';
+			    position: absolute;
+			    inset: -16px;
+			    border-radius: 14px;
+			    background: linear-gradient(-45deg, #22D3EE 0%, #8B5CF6 50%, #EC4899 100%);
+			    z-index: -10;
+			    pointer-events: none;
+			    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+			  }
+			  .card::after {
+			    content: '';
+			    z-index: -1;
+			    position: absolute;
+			    inset: -16px;
+			    background: linear-gradient(-45deg, #0EA5C7 0%, #7C3AED 50%, #DB2777 100%);
+			    transform: translate3d(0, 0, 0) scale(0.95);
+			    filter: blur(26px);
+			  }
+			  .num {
+			    font-size: 14px;
+			    color: #8F96B2;
+			    margin: 0;
+			  }
+			  .heading {
+			    display: flex;
+			    align-items: center;
+			    gap: 10px;
+			    font-size: 32px;
+			    text-transform: capitalize;
+			    font-weight: 500;
+			    margin: 0;
+			    line-height: 1.25;
+			    color: #1A1E30;
+			  }
+			  .heading-icon {
+			    flex-shrink: 0;
+			  }
+			  .card p.desc {
+			    font-size: 18px;
+			    color: #4A4F63;
+			    line-height: 1.6;
+			    margin: 0;
+			  }
+			  .card:hover::after {
+			    filter: blur(34px);
+			  }
+			  .card:hover::before {
+			    transform: rotate(-90deg) scaleX(1.34) scaleY(0.77);
+			  }
+			</style>
+			<div class='card-wrap'>
+			  <div class='card'>
+			    <p class='num'>01</p>
+			    <p class='heading'><svg class='heading-icon' width='34' height='34' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='#F5B942'/><text x='12' y='16' font-size='12' text-anchor='middle' fill='#FFFFFF' font-family='Arial' font-weight='bold'>$</text></svg>Sales Overview</p>
+			    <p class='desc'>Track total quantity, sales, and freight, and spot
+			risky orders at a glance. Compare category
+			performance, explore geographic sales
+			distribution, and follow trends for top products.
+			</p>
+			  </div>
+			</div>"
+			RETURN _html
+		lineageTag: bbece635-169a-468f-a81d-368d7a9d9ec2
+
+	measure NavCard_profitability2 =
+			
+			VAR _html =
+			"<style>
+			  .card-wrap {
+			    position: fixed;
+			    inset: 0;
+			    margin: 0;
+			    padding: 18px;
+			    box-sizing: border-box;
+			    display: flex;
+			    align-items: center;
+			    justify-content: center;
+			    background: #FFFFFF;
+			  }
+			  .card {
+			    position: relative;
+			    width: 100%;
+			    height: 100%;
+			    box-sizing: border-box;
+			    background-color: #FFFFFF;
+			    display: flex;
+			    flex-direction: column;
+			    justify-content: flex-start;
+			    padding: 28px;
+			    gap: 12px;
+			    border-radius: 8px;
+			    cursor: pointer;
+			    color: #1A1E30;
+			  }
+			  .card::before {
+			    content: '';
+			    position: absolute;
+			    inset: -16px;
+			    border-radius: 14px;
+			    background: linear-gradient(-45deg, #22D3EE 0%, #8B5CF6 50%, #EC4899 100%);
+			    z-index: -10;
+			    pointer-events: none;
+			    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+			  }
+			  .card::after {
+			    content: '';
+			    z-index: -1;
+			    position: absolute;
+			    inset: -16px;
+			    background: linear-gradient(-45deg, #0EA5C7 0%, #7C3AED 50%, #DB2777 100%);
+			    transform: translate3d(0, 0, 0) scale(0.95);
+			    filter: blur(26px);
+			  }
+			  .num {
+			    font-size: 14px;
+			    color: #8F96B2;
+			    margin: 0;
+			  }
+			  .heading {
+			    display: flex;
+			    align-items: center;
+			    gap: 10px;
+			    font-size: 32px;
+			    text-transform: capitalize;
+			    font-weight: 500;
+			    margin: 0;
+			    line-height: 1.25;
+			    color: #1A1E30;
+			  }
+			  .heading-icon {
+			    flex-shrink: 0;
+			  }
+			  .card p.desc {
+			    font-size: 18px;
+			    color: #4A4F63;
+			    line-height: 1.6;
+			    margin: 0;
+			  }
+			  .card:hover::after {
+			    filter: blur(34px);
+			  }
+			  .card:hover::before {
+			    transform: rotate(-90deg) scaleX(1.34) scaleY(0.77);
+			  }
+			</style>
+			<div class='card-wrap'>
+			  <div class='card'>
+			    <p class='num'>02</p>
+			    <p class='heading'><svg class='heading-icon' width='34' height='34' viewBox='0 0 24 24'><rect x='7' y='4' width='13' height='16' rx='2' fill='#A78BFA'/><rect x='10' y='13' width='2' height='4' fill='#FFFFFF'/><rect x='13' y='11' width='2' height='6' fill='#FFFFFF'/><rect x='16' y='9' width='2' height='8' fill='#FFFFFF'/><circle cx='7' cy='7' r='4' fill='#EC4899'/><text x='7' y='9' font-size='5' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>$</text></svg>Profitability Analysis</p>
+			    <p class='desc'>Compare profitability by sub-category, weigh
+			revenue against profit by region, and break
+			down discount levels alongside order volume
+			and discounted sales performance.
+			</p>
+			  </div>
+			</div>"
+			RETURN _html
+		lineageTag: 171a76f4-6094-4cbd-bb16-729c8f6321f4
+
+	measure NavCard_customerProduct2 =
+			
+			VAR _html =
+			"<style>
+			  .card-wrap {
+			    position: fixed;
+			    inset: 0;
+			    margin: 0;
+			    padding: 18px;
+			    box-sizing: border-box;
+			    display: flex;
+			    align-items: center;
+			    justify-content: center;
+			    background: #FFFFFF;
+			  }
+			  .card {
+			    position: relative;
+			    width: 100%;
+			    height: 100%;
+			    box-sizing: border-box;
+			    background-color: #FFFFFF;
+			    display: flex;
+			    flex-direction: column;
+			    justify-content: flex-start;
+			    padding: 28px;
+			    gap: 12px;
+			    border-radius: 8px;
+			    cursor: pointer;
+			    color: #1A1E30;
+			  }
+			  .card::before {
+			    content: '';
+			    position: absolute;
+			    inset: -16px;
+			    border-radius: 14px;
+			    background: linear-gradient(-45deg, #22D3EE 0%, #8B5CF6 50%, #EC4899 100%);
+			    z-index: -10;
+			    pointer-events: none;
+			    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+			  }
+			  .card::after {
+			    content: '';
+			    z-index: -1;
+			    position: absolute;
+			    inset: -16px;
+			    background: linear-gradient(-45deg, #0EA5C7 0%, #7C3AED 50%, #DB2777 100%);
+			    transform: translate3d(0, 0, 0) scale(0.95);
+			    filter: blur(26px);
+			  }
+			  .num {
+			    font-size: 14px;
+			    color: #8F96B2;
+			    margin: 0;
+			  }
+			  .heading {
+			    display: flex;
+			    align-items: center;
+			    gap: 10px;
+			    font-size: 32px;
+			    text-transform: capitalize;
+			    font-weight: 500;
+			    margin: 0;
+			    line-height: 1.25;
+			    color: #1A1E30;
+			  }
+			  .heading-icon {
+			    flex-shrink: 0;
+			  }
+			  .card p.desc {
+			    font-size: 18px;
+			    color: #4A4F63;
+			    line-height: 1.6;
+			    margin: 0;
+			  }
+			  .card:hover::after {
+			    filter: blur(34px);
+			  }
+			  .card:hover::before {
+			    transform: rotate(-90deg) scaleX(1.34) scaleY(0.77);
+			  }
+			</style>
+			<div class='card-wrap'>
+			  <div class='card'>
+			    <p class='num'>03</p>
+			    <p class='heading'><svg class='heading-icon' width='34' height='34' viewBox='0 0 24 24'><path fill='#2DD4BF' d='M12 12c2.2 0 4-1.79 4-4s-1.8-4-4-4-4 1.79-4 4 1.8 4 4 4zm-1.5 1.5C7.24 13.5 4 15.13 4 17v2h9v-2c0-1.87-3.24-3.5-6.5-3.5zM17 12c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm0 1.5c-.42 0-.86.03-1.31.09.98.71 1.81 1.72 1.81 2.91v2h5v-2c0-1.63-2.62-2.9-5.5-3z'/></svg>Customer - Product</p>
+			    <p class='desc'>See who's buying, what they're buying, and how
+			customer segments and top products are
+			driving overall order volume, distribution,
+			and profit margins.
+			</p>
+			  </div>
+			</div>"
+			RETURN _html
+		lineageTag: 0a0fd59c-de89-4f1a-9b3f-c99286e60af7
+
+	/// Duplicate of KPI_TotalQuantity styled with a light background for the light theme version of the report
+	measure KPI_TotalQuantity2 =
+			
+			VAR _val = [Total Quantity]
+			VAR _fmt =
+			    SWITCH(
+			        TRUE(),
+			        _val >= 1000000, FORMAT(DIVIDE(_val,1000000),"0.00") & "M",
+			        _val >= 1000, FORMAT(DIVIDE(_val,1000),"0") & "K",
+			        FORMAT(_val,"0")
+			    )
+			VAR _html =
+			"<style>
+			.kpi-card {
+			  position: relative;
+			  background: #FFFFFF;
+			  border-radius: 12px;
+			  padding: 20px;
+			  box-sizing: border-box;
+			  height: 100%;
+			  display: flex;
+			  flex-direction: column;
+			  justify-content: center;
+			  gap: 6px;
+			  font-family: Arial, sans-serif;
+			  animation: glowPulse 4s ease-in-out infinite;
+			}
+			@keyframes glowPulse {
+			  0% { box-shadow: 0 0 34px 6px rgba(34,211,238,0.55); }
+			  33% { box-shadow: 0 0 34px 6px rgba(139,92,246,0.55); }
+			  66% { box-shadow: 0 0 34px 6px rgba(236,72,153,0.55); }
+			  100% { box-shadow: 0 0 34px 6px rgba(34,211,238,0.55); }
+			}
+			.kpi-icon {
+			  position: absolute;
+			  top: 14px;
+			  right: 16px;
+			  width: 34px;
+			  height: 34px;
+			  animation: bounceIcon 2.2s ease-in-out infinite;
+			}
+			@keyframes bounceIcon {
+			  0%, 100% { transform: translateY(0); }
+			  50% { transform: translateY(-6px); }
+			}
+			.kpi-label {
+			  font-size: 30px;
+			  color: #4A4F63;
+			}
+			.kpi-value {
+			  font-size: 34px;
+			  font-weight: 700;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  -webkit-background-clip: text;
+			  background-clip: text;
+			  color: transparent;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			</style>
+			<div class='kpi-card'>
+			  <svg class='kpi-icon' viewBox='0 0 24 24'>
+			    <defs>
+			      <linearGradient id='g1' x1='0' y1='0' x2='1' y2='1'>
+			        <stop offset='0%' stop-color='#22D3EE'/>
+			        <stop offset='50%' stop-color='#8B5CF6'/>
+			        <stop offset='100%' stop-color='#EC4899'/>
+			      </linearGradient>
+			    </defs>
+			    <path fill='none' stroke='url(#g1)' stroke-width='1.6' stroke-linejoin='round' d='M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9Z'/>
+			    <path fill='none' stroke='url(#g1)' stroke-width='1.6' stroke-linejoin='round' d='M3 7.5 12 12l9-4.5M12 12v9'/>
+			  </svg>
+			  <span class='kpi-label'>Total Quantity</span>
+			  <span class='kpi-value'>" & _fmt & "</span>
+			</div>"
+			RETURN _html
+		lineageTag: 2e48e0d2-9876-4e4c-ba88-817963266c1a
+
+	/// Duplicate of KPI_TotalSales styled with a light background for the light theme version of the report
+	measure KPI_TotalSales2 =
+			
+			VAR _val = [Total Sales]
+			VAR _fmt =
+			    SWITCH(
+			        TRUE(),
+			        _val >= 1000000, FORMAT(DIVIDE(_val,1000000),"0.00") & "M",
+			        _val >= 1000, FORMAT(DIVIDE(_val,1000),"0") & "K",
+			        FORMAT(_val,"0")
+			    )
+			VAR _html =
+			"<style>
+			.kpi-card {
+			  position: relative;
+			  background: #FFFFFF;
+			  border-radius: 12px;
+			  padding: 20px;
+			  box-sizing: border-box;
+			  height: 100%;
+			  display: flex;
+			  flex-direction: column;
+			  justify-content: center;
+			  gap: 6px;
+			  font-family: Arial, sans-serif;
+			  animation: glowPulse 4s ease-in-out infinite;
+			}
+			@keyframes glowPulse {
+			  0% { box-shadow: 0 0 34px 6px rgba(34,211,238,0.55); }
+			  33% { box-shadow: 0 0 34px 6px rgba(139,92,246,0.55); }
+			  66% { box-shadow: 0 0 34px 6px rgba(236,72,153,0.55); }
+			  100% { box-shadow: 0 0 34px 6px rgba(34,211,238,0.55); }
+			}
+			.kpi-icon {
+			  position: absolute;
+			  top: 14px;
+			  right: 16px;
+			  width: 34px;
+			  height: 34px;
+			  animation: bounceIcon 2.2s ease-in-out infinite;
+			}
+			@keyframes bounceIcon {
+			  0%, 100% { transform: translateY(0); }
+			  50% { transform: translateY(-6px); }
+			}
+			.kpi-label {
+			  font-size: 30px;
+			  color: #4A4F63;
+			}
+			.kpi-value {
+			  font-size: 34px;
+			  font-weight: 700;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  -webkit-background-clip: text;
+			  background-clip: text;
+			  color: transparent;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			</style>
+			<div class='kpi-card'>
+			  <svg class='kpi-icon' viewBox='0 0 24 24'>
+			    <defs>
+			      <linearGradient id='g2' x1='0' y1='0' x2='1' y2='1'>
+			        <stop offset='0%' stop-color='#22D3EE'/>
+			        <stop offset='50%' stop-color='#8B5CF6'/>
+			        <stop offset='100%' stop-color='#EC4899'/>
+			      </linearGradient>
+			    </defs>
+			    <circle fill='none' stroke='url(#g2)' stroke-width='1.6' cx='12' cy='12' r='9.25'/>
+			    <path fill='url(#g2)' fill-rule='evenodd' d='M12.75 6.75a.75.75 0 0 0-1.5 0v.373c-1.293.318-2.25 1.412-2.25 2.71 0 1.545 1.354 2.646 2.777 3.036l.723.197c1.05.286 1.5.837 1.5 1.434 0 .78-.795 1.5-2 1.5-.94 0-1.717-.44-1.972-1.021a.75.75 0 0 0-1.372.607c.49 1.113 1.598 1.788 2.594 1.96v.454a.75.75 0 0 0 1.5 0v-.373c1.293-.318 2.25-1.412 2.25-2.71 0-1.545-1.354-2.646-2.777-3.036l-.723-.197c-1.05-.286-1.5-.837-1.5-1.434 0-.78.795-1.5 2-1.5.85 0 1.573.36 1.895.865a.75.75 0 1 0 1.26-.813c-.552-.86-1.53-1.386-2.655-1.548v-.454Z' clip-rule='evenodd'/>
+			  </svg>
+			  <span class='kpi-label'>Total Sales</span>
+			  <span class='kpi-value'>" & _fmt & "</span>
+			</div>"
+			RETURN _html
+		lineageTag: 75e5914d-9b4f-41f3-90fc-74e311a7d878
+
+	/// Duplicate of KPI_TotalFreight styled with a light background for the light theme version of the report
+	measure KPI_TotalFreight2 =
+			
+			VAR _val = [Total Freight]
+			VAR _fmt =
+			    SWITCH(
+			        TRUE(),
+			        _val >= 1000000, FORMAT(DIVIDE(_val,1000000),"0.00") & "M",
+			        _val >= 1000, FORMAT(DIVIDE(_val,1000),"0.00") & "K",
+			        FORMAT(_val,"0")
+			    )
+			VAR _html =
+			"<style>
+			.kpi-card {
+			  position: relative;
+			  background: #FFFFFF;
+			  border-radius: 12px;
+			  padding: 20px;
+			  box-sizing: border-box;
+			  height: 100%;
+			  display: flex;
+			  flex-direction: column;
+			  justify-content: center;
+			  gap: 6px;
+			  font-family: Arial, sans-serif;
+			  animation: glowPulse 4s ease-in-out infinite;
+			}
+			@keyframes glowPulse {
+			  0% { box-shadow: 0 0 34px 6px rgba(34,211,238,0.55); }
+			  33% { box-shadow: 0 0 34px 6px rgba(139,92,246,0.55); }
+			  66% { box-shadow: 0 0 34px 6px rgba(236,72,153,0.55); }
+			  100% { box-shadow: 0 0 34px 6px rgba(34,211,238,0.55); }
+			}
+			.kpi-icon {
+			  position: absolute;
+			  top: 14px;
+			  right: 16px;
+			  width: 34px;
+			  height: 34px;
+			  animation: bounceIcon 2.2s ease-in-out infinite;
+			}
+			@keyframes bounceIcon {
+			  0%, 100% { transform: translateY(0); }
+			  50% { transform: translateY(-6px); }
+			}
+			.kpi-label {
+			  font-size: 30px;
+			  color: #4A4F63;
+			}
+			.kpi-value {
+			  font-size: 34px;
+			  font-weight: 700;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  -webkit-background-clip: text;
+			  background-clip: text;
+			  color: transparent;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			</style>
+			<div class='kpi-card'>
+			  <svg class='kpi-icon' viewBox='0 0 24 24'>
+			    <defs>
+			      <linearGradient id='g3' x1='0' y1='0' x2='1' y2='1'>
+			        <stop offset='0%' stop-color='#22D3EE'/>
+			        <stop offset='50%' stop-color='#8B5CF6'/>
+			        <stop offset='100%' stop-color='#EC4899'/>
+			      </linearGradient>
+			    </defs>
+			    <path fill='url(#g3)' d='M8.25 18.75a1.5 1.5 0 0 1-3 0 1.5 1.5 0 0 1 3 0ZM19.5 18.75a1.5 1.5 0 0 1-3 0 1.5 1.5 0 0 1 3 0Z'/>
+			    <path fill='url(#g3)' fill-rule='evenodd' d='M3.375 4.5C2.339 4.5 1.5 5.34 1.5 6.375V13.5h12V6.375c0-1.036-.84-1.875-1.875-1.875h-8.25ZM13.5 15h-12v.75c0 1.035.84 1.875 1.875 1.875H4.5a3 3 0 1 1 6 0h4.5a3 3 0 1 1 6 0h.375A1.875 1.875 0 0 0 23.25 15.75V12.75a.75.75 0 0 0-.22-.53l-3.5-3.5A.75.75 0 0 0 19 8.5H15v6.5Z' clip-rule='evenodd'/>
+			  </svg>
+			  <span class='kpi-label'>Total Freight</span>
+			  <span class='kpi-value'>" & _fmt & "</span>
+			</div>"
+			RETURN _html
+		lineageTag: ffa828f8-8147-4cfa-9021-76a185a1eef0
+
+	/// Duplicate of KPI_RiskyOrders styled with a light background for the light theme version of the report
+	measure KPI_RiskyOrders2 =
+			
+			VAR _val = [Risky Orders Count]
+			VAR _fmt =
+			    SWITCH(
+			        TRUE(),
+			        _val >= 1000000, FORMAT(DIVIDE(_val,1000000),"0.00") & "M",
+			        _val >= 1000, FORMAT(DIVIDE(_val,1000),"0") & "K",
+			        FORMAT(_val,"0")
+			    )
+			VAR _html =
+			"<style>
+			.kpi-card {
+			  position: relative;
+			  background: #FFFFFF;
+			  border-radius: 12px;
+			  padding: 20px;
+			  box-sizing: border-box;
+			  height: 100%;
+			  display: flex;
+			  flex-direction: column;
+			  justify-content: center;
+			  gap: 6px;
+			  font-family: Arial, sans-serif;
+			  animation: glowPulse 4s ease-in-out infinite;
+			}
+			@keyframes glowPulse {
+			  0% { box-shadow: 0 0 34px 6px rgba(34,211,238,0.55); }
+			  33% { box-shadow: 0 0 34px 6px rgba(139,92,246,0.55); }
+			  66% { box-shadow: 0 0 34px 6px rgba(236,72,153,0.55); }
+			  100% { box-shadow: 0 0 34px 6px rgba(34,211,238,0.55); }
+			}
+			.kpi-icon {
+			  position: absolute;
+			  top: 14px;
+			  right: 16px;
+			  width: 34px;
+			  height: 34px;
+			  animation: bounceIcon 2.2s ease-in-out infinite;
+			}
+			@keyframes bounceIcon {
+			  0%, 100% { transform: translateY(0); }
+			  50% { transform: translateY(-6px); }
+			}
+			.kpi-label {
+			  font-size: 30px;
+			  color: #4A4F63;
+			}
+			.kpi-value {
+			  font-size: 34px;
+			  font-weight: 700;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  -webkit-background-clip: text;
+			  background-clip: text;
+			  color: transparent;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			</style>
+			<div class='kpi-card'>
+			  <svg class='kpi-icon' viewBox='0 0 24 24'>
+			    <defs>
+			      <linearGradient id='g4' x1='0' y1='0' x2='1' y2='1'>
+			        <stop offset='0%' stop-color='#22D3EE'/>
+			        <stop offset='50%' stop-color='#8B5CF6'/>
+			        <stop offset='100%' stop-color='#EC4899'/>
+			      </linearGradient>
+			    </defs>
+			    <path fill='url(#g4)' fill-rule='evenodd' d='M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z' clip-rule='evenodd'/>
+			  </svg>
+			  <span class='kpi-label'>Risky Orders Count</span>
+			  <span class='kpi-value'>" & _fmt & "</span>
+			</div>"
+			RETURN _html
+		lineageTag: 85e19119-d02f-40cf-8a48-98593bc372f0
+
+	measure Switch_ToLight =
+			
+			VAR _html =
+			"<style>
+			.switch-wrap {
+			  display: flex;
+			  align-items: center;
+			  justify-content: center;
+			  width: 100%;
+			  height: 100%;
+			}
+			.switch-track {
+			  position: relative;
+			  width: 90px;
+			  height: 46px;
+			  border-radius: 999px;
+			  background: linear-gradient(135deg, #FFD8A8, #A8D8FF, #7EC8F0);
+			  overflow: hidden;
+			  transition: transform 0.3s ease;
+			}
+			.switch-track:hover {
+			  transform: scale(1.06);
+			}
+			.cloud {
+			  position: absolute;
+			  background: #FFFFFF;
+			  border-radius: 50%;
+			  opacity: 0.55;
+			}
+			.cloud1 { width: 26px; height: 26px; top: 10px; right: 14px; }
+			.cloud2 { width: 34px; height: 34px; top: 16px; right: 4px; opacity: 0.6; }
+			.cloud3 { width: 20px; height: 20px; top: 20px; right: 22px; opacity: 0.5; }
+			.switch-knob {
+			  position: absolute;
+			  top: 4px;
+			  left: 4px;
+			  width: 38px;
+			  height: 38px;
+			  border-radius: 50%;
+			  background: radial-gradient(circle at 35% 35%, #FFFFFF, #E8E8E8);
+			  transition: left 0.3s ease;
+			}
+			</style>
+			<div class='switch-wrap'>
+			  <div class='switch-track'>
+			    <div class='cloud cloud2'></div>
+			    <div class='cloud cloud1'></div>
+			    <div class='cloud cloud3'></div>
+			    <div class='switch-knob'></div>
+			  </div>
+			</div>"
+			RETURN _html
+		lineageTag: ff205953-d712-40e2-847d-9a73f14224c3
+
+	measure Switch_ToDark =
+			
+			VAR _html =
+			"<style>
+			.switch-wrap {
+			  display: flex;
+			  align-items: center;
+			  justify-content: center;
+			  width: 100%;
+			  height: 100%;
+			}
+			.switch-track {
+			  position: relative;
+			  width: 90px;
+			  height: 46px;
+			  border-radius: 999px;
+			  background: linear-gradient(135deg, #1A1E30, #5B21B6, #DB2777);
+			  overflow: hidden;
+			  transition: transform 0.3s ease;
+			}
+			.switch-track:hover {
+			  transform: scale(1.06);
+			}
+			.star {
+			  position: absolute;
+			  background: #FFFFFF;
+			  border-radius: 50%;
+			}
+			.star1 { width: 3px; height: 3px; top: 8px; left: 14px; }
+			.star2 { width: 2px; height: 2px; top: 16px; left: 24px; }
+			.star3 { width: 2.5px; height: 2.5px; top: 12px; left: 30px; }
+			.star4 { width: 2px; height: 2px; top: 22px; left: 10px; }
+			.switch-knob {
+			  position: absolute;
+			  top: 4px;
+			  right: 4px;
+			  width: 38px;
+			  height: 38px;
+			  border-radius: 50%;
+			  background: radial-gradient(circle at 35% 35%, #FFFFFF, #E8E8E8);
+			  transition: right 0.3s ease;
+			}
+			</style>
+			<div class='switch-wrap'>
+			  <div class='switch-track'>
+			    <div class='star star1'></div>
+			    <div class='star star2'></div>
+			    <div class='star star3'></div>
+			    <div class='star star4'></div>
+			    <div class='switch-knob'></div>
+			  </div>
+			</div>"
+			RETURN _html
+		lineageTag: 97e6fcab-36c7-4955-a05b-30123829e223
+
+	/// Average discount percentage grouped by product category
+	measure 'Avg Discount Per Category' =
+			
+			AVERAGEX(
+			    orders,
+			    orders[Discount]
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: da60a893-c185-44bc-9c79-139d7f8cf2f0
+
+	/// KPI card displaying average order value (Total Revenue divided by Total Orders), shown as a styled HTML card with an animated gradient
+	measure KPI_AvgOrderValue =
+			
+			VAR _val = DIVIDE([Total Revenue], [Total Orders])
+			VAR _fmt =
+			    SWITCH(
+			        TRUE(),
+			        _val >= 1000000, FORMAT(DIVIDE(_val,1000000),"0.00") & "M",
+			        _val >= 1000, FORMAT(DIVIDE(_val,1000),"0") & "K",
+			        FORMAT(_val,"0")
+			    )
+			VAR _html =
+			"<style>
+			.kpi-card {
+			  position: relative;
+			  background: #FFFFFF;
+			  border-radius: 12px;
+			  padding: 20px;
+			  box-sizing: border-box;
+			  height: 100%;
+			  display: flex;
+			  flex-direction: column;
+			  justify-content: center;
+			  gap: 6px;
+			  font-family: Arial, sans-serif;
+			  animation: glowPulse 4s ease-in-out infinite;
+			}
+			@keyframes glowPulse {
+			  0% { box-shadow: 0 0 34px 6px rgba(34,211,238,0.55); }
+			  33% { box-shadow: 0 0 34px 6px rgba(139,92,246,0.55); }
+			  66% { box-shadow: 0 0 34px 6px rgba(236,72,153,0.55); }
+			  100% { box-shadow: 0 0 34px 6px rgba(34,211,238,0.55); }
+			}
+			.kpi-icon {
+			  position: absolute;
+			  top: 14px;
+			  right: 16px;
+			  width: 34px;
+			  height: 34px;
+			  animation: bounceIcon 2.2s ease-in-out infinite;
+			}
+			@keyframes bounceIcon {
+			  0%, 100% { transform: translateY(0); }
+			  50% { transform: translateY(-6px); }
+			}
+			.kpi-label {
+			  font-size: 30px;
+			  color: #4A4F63;
+			}
+			.kpi-value {
+			  font-size: 34px;
+			  font-weight: 700;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  -webkit-background-clip: text;
+			  background-clip: text;
+			  color: transparent;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			</style>
+			<div class='kpi-card'>
+			  <svg class='kpi-icon' viewBox='0 0 24 24'>
+			    <defs>
+			      <linearGradient id='g2' x1='0' y1='0' x2='1' y2='1'>
+			        <stop offset='0%' stop-color='#22D3EE'/>
+			        <stop offset='50%' stop-color='#8B5CF6'/>
+			        <stop offset='100%' stop-color='#EC4899'/>
+			      </linearGradient>
+			    </defs>
+			    <path fill='none' stroke='url(#g2)' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M3 3v18h18M7 14l3-3 3 3 5-6'/>
+			  </svg>
+			  <span class='kpi-label'>Avg Order Value</span>
+			  <span class='kpi-value'>" & _fmt & "</span>
+			</div>"
+			RETURN _html
+		lineageTag: b0a0dc88-d37d-4ec3-92ef-a98245841ff5
+
+	/// Duplicate of KPI_AvgOrderValue (average order value = Total Revenue / Total Orders) styled with a dark background for the dark theme version of the report
+	measure KPI_AvgOrderValue_2 =
+			
+			VAR _val = DIVIDE([Total Revenue], [Total Orders])
+			VAR _fmt =
+			    SWITCH(
+			        TRUE(),
+			        _val >= 1000000, FORMAT(DIVIDE(_val,1000000),"0.00") & "M",
+			        _val >= 1000, FORMAT(DIVIDE(_val,1000),"0") & "K",
+			        FORMAT(_val,"0")
+			    )
+			VAR _html =
+			"<style>
+			.kpi-card {
+			  position: relative;
+			  background: #1A1E30;
+			  border-radius: 12px;
+			  padding: 20px;
+			  box-sizing: border-box;
+			  height: 100%;
+			  display: flex;
+			  flex-direction: column;
+			  justify-content: center;
+			  gap: 6px;
+			  font-family: Arial, sans-serif;
+			  animation: glowPulse 4s ease-in-out infinite;
+			}
+			@keyframes glowPulse {
+			  0% { box-shadow: 0 0 34px 6px rgba(34,211,238,0.55); }
+			  33% { box-shadow: 0 0 34px 6px rgba(139,92,246,0.55); }
+			  66% { box-shadow: 0 0 34px 6px rgba(236,72,153,0.55); }
+			  100% { box-shadow: 0 0 34px 6px rgba(34,211,238,0.55); }
+			}
+			.kpi-icon {
+			  position: absolute;
+			  top: 14px;
+			  right: 16px;
+			  width: 34px;
+			  height: 34px;
+			  animation: bounceIcon 2.2s ease-in-out infinite;
+			}
+			@keyframes bounceIcon {
+			  0%, 100% { transform: translateY(0); }
+			  50% { transform: translateY(-6px); }
+			}
+			.kpi-label {
+			  font-size: 30px;
+			  color: #4A4F63;
+			}
+			.kpi-value {
+			  font-size: 34px;
+			  font-weight: 700;
+			  background: linear-gradient(90deg, #22D3EE, #8B5CF6, #EC4899, #8B5CF6, #22D3EE);
+			  background-size: 300% 100%;
+			  -webkit-background-clip: text;
+			  background-clip: text;
+			  color: transparent;
+			  animation: gradientShift 6s ease-in-out infinite;
+			}
+			@keyframes gradientShift {
+			  0% { background-position: 0% 50%; }
+			  50% { background-position: 100% 50%; }
+			  100% { background-position: 0% 50%; }
+			}
+			</style>
+			<div class='kpi-card'>
+			  <svg class='kpi-icon' viewBox='0 0 24 24'>
+			    <defs>
+			      <linearGradient id='g2' x1='0' y1='0' x2='1' y2='1'>
+			        <stop offset='0%' stop-color='#22D3EE'/>
+			        <stop offset='50%' stop-color='#8B5CF6'/>
+			        <stop offset='100%' stop-color='#EC4899'/>
+			      </linearGradient>
+			    </defs>
+			    <path fill='none' stroke='url(#g2)' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M3 3v18h18M7 14l3-3 3 3 5-6'/>
+			  </svg>
+			  <span class='kpi-label'>Avg Order Value</span>
+			  <span class='kpi-value'>" & _fmt & "</span>
+			</div>"
+			RETURN _html
+		lineageTag: a0ca008f-26b9-43ed-866e-625c5fcc2e15
+
+	measure 'Max Discount Per Category' =
+			
+			CALCULATE(
+			    MAXX(
+			        orders,
+			        orders[Discount]
+			    )
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: cfb8689d-9132-4d41-9c80-93a81018eafe
+
+	/// Total sales value for the same period one year ago, using SAMEPERIODLASTYEAR on the Date table. Used as the base comparison for YoY Growth.
+	measure 'Sales Last Year' = ```
+			CALCULATE([Total Sales], SAMEPERIODLASTYEAR('Date'[FullDate]))
+			
+			
+			```
+		lineageTag: 25f4bfed-1ebe-4fd8-97df-7a64d30333f0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Column
+		formatString: 0
+		lineageTag: 4c45061f-01b1-4d7c-8325-5cb2de0b2b0c
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Column]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Measure = calculated
+		mode: import
+		source = Row("Column", BLANK())
+
+	annotation PBI_Id = 63955a49789047a884a2dc141403251a
+
+	annotation 436ba87b-9c83-4389-a31b-ebd06a36be98 = {"Expression":""}
+

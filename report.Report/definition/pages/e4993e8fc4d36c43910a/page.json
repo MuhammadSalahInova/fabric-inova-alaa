@@ -1,0 +1,48 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "e4993e8fc4d36c43910a",
+  "displayName": "Avergae Tooltip",
+  "displayOption": "ActualSize",
+  "height": 300,
+  "width": 400,
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "c81e414ed0c638070c73",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "product"
+              }
+            },
+            "Property": "CategoryName"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "Drillthrough"
+      }
+    ]
+  },
+  "pageBinding": {
+    "name": "80c6973e6a58a0e5107a",
+    "type": "Tooltip",
+    "parameters": [
+      {
+        "name": "81d03eacb16000e09359",
+        "boundFilter": "c81e414ed0c638070c73",
+        "fieldExpr": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "product"
+              }
+            },
+            "Property": "CategoryName"
+          }
+        }
+      }
+    ]
+  },
+  "type": "Tooltip"
+}

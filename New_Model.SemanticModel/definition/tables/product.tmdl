@@ -1,0 +1,136 @@
+table product
+	lineageTag: 942c8162-8a53-4068-ae7b-70d6d9041e4d
+	sourceLineageTag: [dbo].[gold_product_dim]
+
+	column ProductKey
+		dataType: int64
+		formatString: 0
+		lineageTag: eac0d457-1d1c-4dd9-a96e-e15fdb33e8ba
+		sourceLineageTag: ProductKey
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductID
+		dataType: int64
+		formatString: 0
+		lineageTag: 90df4c6e-3c90-40dd-9ba7-693948f76e62
+		sourceLineageTag: ProductID
+		summarizeBy: none
+		sourceColumn: ProductID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductName
+		dataType: string
+		lineageTag: e27367b2-b6d9-4e80-b68b-62bcd5989537
+		sourceLineageTag: ProductName
+		summarizeBy: none
+		sourceColumn: ProductName
+
+		annotation SummarizationSetBy = Automatic
+
+	column SupplierID
+		dataType: int64
+		formatString: 0
+		lineageTag: bd05ab52-d34e-4328-b207-8f1ed078baa7
+		sourceLineageTag: SupplierID
+		summarizeBy: none
+		sourceColumn: SupplierID
+
+		annotation SummarizationSetBy = Automatic
+
+	column CategoryID
+		dataType: int64
+		formatString: 0
+		lineageTag: a7e98d40-11a4-4842-92d4-2e2ac0cde4e7
+		sourceLineageTag: CategoryID
+		summarizeBy: none
+		sourceColumn: CategoryID
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuantityPerUnit
+		dataType: string
+		lineageTag: ca2f178c-2a65-480f-8806-4732a96aedcd
+		sourceLineageTag: QuantityPerUnit
+		summarizeBy: none
+		sourceColumn: QuantityPerUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnitPrice
+		dataType: double
+		lineageTag: 205a545f-f6c5-4efd-963b-c65c70805fef
+		sourceLineageTag: UnitPrice
+		summarizeBy: none
+		sourceColumn: UnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column UnitsInStock
+		dataType: int64
+		formatString: 0
+		lineageTag: e676b4ab-fd90-4580-98d1-300f622224b7
+		sourceLineageTag: UnitsInStock
+		summarizeBy: none
+		sourceColumn: UnitsInStock
+
+		annotation SummarizationSetBy = Automatic
+
+	column CategoryName =
+			
+			SWITCH(
+			    product[CategoryID],
+			    1, "Beverages",
+			    2, "Condiments",
+			    3, "Confections",
+			    4, "Dairy Products",
+			    5, "Grains/Cereals",
+			    6, "Meat/Poultry",
+			    7, "Produce",
+			    8, "Seafood",
+			    "Other"
+			)
+		lineageTag: 60ebcd56-ef02-44ef-9f7f-dcddb713910a
+		summarizeBy: none
+		expressionContext: userContext
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubCatgory =
+			
+			SWITCH(
+			    product[CategoryID],
+			    1, "Soft Drinks",
+			    2, "Dried fruit",
+			    3, "Sweet and savory sauces",
+			    4, "Desserts",
+			    5, "Breads",
+			    6, "Prepared meats",
+			    7, "Cheeses",
+			    8, "Seaweed and fish",
+			    "Other"
+			)
+		lineageTag: 250b44c3-f155-4b63-99bb-f3750960bf26
+		summarizeBy: none
+		expressionContext: userContext
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition product = entity
+		mode: directLake
+		source
+			entityName: gold_product_dim
+			schemaName: dbo
+			expressionSource: 'DirectLake - New_Lake'
+
+	changedProperty = Name
+

@@ -1,0 +1,51 @@
+table shipper
+	lineageTag: 20bb9138-05e3-4bb9-9458-6048adfb874b
+	sourceLineageTag: [dbo].[gold_shipper_dim]
+
+	column ShipperKey
+		dataType: int64
+		formatString: 0
+		lineageTag: b54dff5d-22d4-45cf-9e3d-43b1195228db
+		sourceLineageTag: ShipperKey
+		summarizeBy: none
+		sourceColumn: ShipperKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ShipperID
+		dataType: int64
+		formatString: 0
+		lineageTag: 88dfdae0-0dd2-426f-8f8a-643d34fffbb9
+		sourceLineageTag: ShipperID
+		summarizeBy: none
+		sourceColumn: ShipperID
+
+		annotation SummarizationSetBy = Automatic
+
+	column CompanyName
+		dataType: string
+		lineageTag: c9d6c975-3c33-441a-91fc-4527fcbb42c4
+		sourceLineageTag: CompanyName
+		summarizeBy: none
+		sourceColumn: CompanyName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Phone
+		dataType: string
+		lineageTag: e8e1a76b-cb57-4eb7-9a40-f655e53e04fe
+		sourceLineageTag: Phone
+		summarizeBy: none
+		sourceColumn: Phone
+
+		annotation SummarizationSetBy = Automatic
+
+	partition shipper = entity
+		mode: directLake
+		source
+			entityName: gold_shipper_dim
+			schemaName: dbo
+			expressionSource: 'DirectLake - New_Lake'
+
+	changedProperty = Name
+

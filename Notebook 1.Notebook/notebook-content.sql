@@ -1,0 +1,21 @@
+-- Fabric notebook source
+
+-- METADATA ********************
+
+-- META {
+-- META   "kernel_info": {
+-- META     "name": "synapse_pyspark"
+-- META   },
+-- META   "dependencies": {
+-- META     "lakehouse": {
+-- META       "default_lakehouse": "69118442-f38c-4f27-ac49-50e1498a489b",
+-- META       "default_lakehouse_name": "New_Lake",
+-- META       "default_lakehouse_workspace_id": "84782802-80aa-4b18-8e26-c94ddb42e9a6",
+-- META       "known_lakehouses": [
+-- META         {
+-- META           "id": "69118442-f38c-4f27-ac49-50e1498a489b"
+-- META         }
+-- META       ]
+-- META     }
+-- META   }
+-- META }

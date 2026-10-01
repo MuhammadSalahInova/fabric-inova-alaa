@@ -1,0 +1,392 @@
+table orders
+	lineageTag: dfdf6f53-80f6-4446-b0d5-95fd37daf175
+	sourceLineageTag: [dbo].[gold_fact_orders]
+
+	column OrderID
+		dataType: int64
+		formatString: 0
+		lineageTag: 5ee5fb02-a8b0-464d-a965-8458dafd556e
+		sourceLineageTag: OrderID
+		summarizeBy: none
+		sourceColumn: OrderID
+
+		changedProperty = SummarizeBy
+
+		annotation SummarizationSetBy = User
+
+	column CustomerKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 67af6f37-6439-40d5-b44f-d009af5d0cb1
+		sourceLineageTag: CustomerKey
+		summarizeBy: none
+		sourceColumn: CustomerKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 355006dd-22b2-4230-8a69-6f3bdb76403b
+		sourceLineageTag: ProductKey
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column EmployeeKey
+		dataType: int64
+		formatString: 0
+		lineageTag: bffa6019-4160-4bb4-84c2-9cf7974e3885
+		sourceLineageTag: EmployeeKey
+		summarizeBy: none
+		sourceColumn: EmployeeKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ShipperKey
+		dataType: int64
+		formatString: 0
+		lineageTag: eee4d9f2-f650-4985-becb-43238a5ce922
+		sourceLineageTag: ShipperKey
+		summarizeBy: none
+		sourceColumn: ShipperKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column OrderDateKey
+		dataType: int64
+		formatString: 0
+		lineageTag: f23be8ed-c72b-4677-a315-54f40eac321b
+		sourceLineageTag: OrderDateKey
+		summarizeBy: none
+		sourceColumn: OrderDateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 434de563-00c9-4b12-bea7-a3bf64bfae6b
+		sourceLineageTag: Year
+		summarizeBy: none
+		sourceColumn: Year
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Month
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b9712d21-6a2a-4e7a-a182-d91fe1854f17
+		sourceLineageTag: Month
+		summarizeBy: none
+		sourceColumn: Month
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Day
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: d323e643-d167-4583-9b8d-46d283baefc8
+		sourceLineageTag: Day
+		summarizeBy: none
+		sourceColumn: Day
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 937b5009-683e-43c8-acf4-c63292d6ce2c
+		sourceLineageTag: Quantity
+		summarizeBy: none
+		sourceColumn: Quantity
+
+		changedProperty = SummarizeBy
+
+		annotation SummarizationSetBy = User
+
+	column UnitPrice
+		dataType: double
+		lineageTag: 7866e83e-e989-483a-bbeb-06f4d2032d2e
+		sourceLineageTag: UnitPrice
+		summarizeBy: none
+		sourceColumn: UnitPrice
+
+		changedProperty = SummarizeBy
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Discount
+		dataType: double
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: ec2d18d2-6d25-4a99-9967-b096e3e787a8
+		sourceLineageTag: Discount
+		summarizeBy: none
+		sourceColumn: Discount
+
+		changedProperty = SummarizeBy
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = User
+
+	column ExtendedPrice
+		dataType: double
+		lineageTag: f1b9f61f-e9b0-4b95-b313-1d342c1b6a57
+		sourceLineageTag: ExtendedPrice
+		summarizeBy: none
+		sourceColumn: ExtendedPrice
+
+		changedProperty = SummarizeBy
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Freight
+		dataType: double
+		lineageTag: 7f2914e3-3753-4338-8ded-7681df27a0e1
+		sourceLineageTag: Freight
+		summarizeBy: none
+		sourceColumn: Freight
+
+		changedProperty = SummarizeBy
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ShipCountry
+		dataType: string
+		lineageTag: ca1358d2-79f2-481d-ba2c-b7cc5b76c9f9
+		sourceLineageTag: ShipCountry
+		summarizeBy: none
+		sourceColumn: ShipCountry
+
+		annotation SummarizationSetBy = Automatic
+
+	column SupplierKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 64077803-6636-4d16-86ac-76f3922df226
+		sourceLineageTag: SupplierKey
+		summarizeBy: none
+		sourceColumn: SupplierKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column TerritoryKey
+		dataType: int64
+		formatString: 0
+		lineageTag: caaaf957-541d-4fe1-9b67-beebb73dc793
+		sourceLineageTag: TerritoryKey
+		summarizeBy: count
+		sourceColumn: TerritoryKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column TerritoryID
+		dataType: string
+		lineageTag: b46ec71d-af34-419b-8a3c-3d287aacad6f
+		sourceLineageTag: TerritoryID
+		summarizeBy: none
+		sourceColumn: TerritoryID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ShipCity
+		dataType: string
+		lineageTag: 4abe8087-3521-4580-a24a-f4c39d179d5d
+		sourceLineageTag: ShipCity
+		summarizeBy: none
+		sourceColumn: ShipCity
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Categorizes each order row into a price tier based on its unit price. Values are "High" if orders[UnitPrice] is greater than 500, and "Low" otherwise. Dependencies: orders[UnitPrice]. Use this field for segmentation, slicing, and filtering sales performance by product price tiers
+	/// 
+	column 'Price Category' =
+			
+			IF(
+			    orders[UnitPrice] > 500,
+			    "High",
+			    "Low"
+			)
+		lineageTag: bee1a038-5b11-4f25-9019-fcbcc4f81107
+		summarizeBy: none
+		expressionContext: userContext
+
+		changedProperty = Name
+
+		changedProperty = Description
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Segmenting column that categorizes each order row into tiered discount levels based on its discount percentage. Evaluates to "No Discount" if Orders[Discount] is 0, "Low Discount" if up to 10%, "Medium Discount" if up to 20%, and "High Discount" for anything above 20%. Dependencies: Orders[Discount]. Use this field for promotional analysis, customer behavior tracking, and slicing performance metrics across different discount tiers
+	/// 
+	column 'Discount Category' =
+			
+			SWITCH(
+			    TRUE(),
+			    'orders'[Discount] = 0, "No Discount",
+			    'orders'[Discount] <= 0.10, "Low Discount",
+			    'orders'[Discount] <= 0.20, "Medium Discount",
+			    "High Discount"
+			)
+		lineageTag: 71ae7811-db02-4ac8-aa2b-eb8d40cb32de
+		summarizeBy: none
+		expressionContext: userContext
+
+		changedProperty = Name
+
+		changedProperty = Description
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Segmenting column that indicates whether an order received a promotion. Evaluates to "Discounted" if Orders[Discount] is strictly greater than 0, and "No Discount" if it equals 0. Dependencies: Orders[Discount]. Use this field for filtering and analyzing promotional versus non-promotional order volume, sales, and profitability
+	column Profit_Status = IF('orders'[Profit] > 0, "Profit", "Loss")
+		lineageTag: f0412c18-aa22-499f-8311-e3dde91a3e70
+		summarizeBy: none
+		expressionContext: userContext
+
+		changedProperty = Name
+
+		changedProperty = Description
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Calculates the net profit for each individual order row by subtracting undiscounted gross revenue from discounted revenue. Dependencies: orders[Quantity], orders[UnitPrice], orders[Discount]. Use this column for row-level profit analysis, distribution checks, or aggregations when a calculated column is specifically required
+	column Profit =
+			
+			('orders'[Quantity] * 'orders'[UnitPrice] * (1 - 'orders'[Discount])) - ('orders'[Quantity] * 'orders'[UnitPrice])
+		lineageTag: ca350580-ec05-422a-a750-97598bd92d1c
+		summarizeBy: sum
+		expressionContext: userContext
+
+		changedProperty = Name
+
+		changedProperty = Description
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Segmenting column that categorizes each order row based on its financial outcome. Evaluates to "Profit" if Orders[Profit] is strictly greater than 0, and "Loss" otherwise. Dependencies: Orders[Profit]. Use this field for filtering, slicing, and analyzing order volume or sales distribution by profitable versus unprofitable transactions.
+	/// 
+	column 'Profit Status' = IF('orders'[Profit] > 0, "Profit", "Loss")
+		lineageTag: 10721dc7-9ef1-4026-9f51-1187d7721f9b
+		summarizeBy: none
+		expressionContext: userContext
+
+		changedProperty = Name
+
+		changedProperty = Description
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Calculates the gross sales revenue for each individual order row by multiplying unit price by quantity. Dependencies: orders[UnitPrice], orders[Quantity]. Use this column for row-level revenue analysis, distribution checks, or when a calculated column is specifically required.
+	column 'Sales Per Order' = ('orders'[UnitPrice] * 'orders'[Quantity])
+		lineageTag: e6f475a8-f77f-41ac-833c-d59efab4badf
+		summarizeBy: sum
+		expressionContext: userContext
+
+		changedProperty = Name
+
+		changedProperty = Description
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Calculates the sales revenue per individual unit for each order row by dividing sales per order by quantity. Dependencies: orders[Sales Per Order], orders[Quantity]. Use this column for unit-level revenue analysis or pricing validations
+	column 'Sales Per Unit' = ```
+			
+			DIVIDE(
+			    'orders'[Sales Per Order], 
+			    'orders'[Quantity]
+			)
+			```
+		lineageTag: 326ad015-276f-4379-9a2a-765eb2ecc40b
+		summarizeBy: sum
+		expressionContext: userContext
+
+		changedProperty = Name
+
+		changedProperty = Description
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Segmenting column that categorizes each order row based on its total sales value. Evaluates to "High Sales" if orders[Sales Per Order] is greater than or equal to 500, and "Low Sales" otherwise. Dependencies: orders[Sales Per Order]. Use this field for filtering, slicing, and analyzing order volume, distribution, or performance by sales tier
+	column 'Sales Category' = IF(orders[Sales Per Order] >= 500, "High Sales", "Low Sales")
+		lineageTag: af4da8ec-d509-46fa-93a7-ad6a7d603867
+		summarizeBy: none
+		expressionContext: userContext
+
+		changedProperty = Name
+
+		changedProperty = Description
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Segmenting column that identifies high-value, profitable transactions. Evaluates to "Good Order" if orders[Sales Per Order] is strictly greater than 500 AND Orders[Profit] is strictly greater than 0, and "Other Order" otherwise. Dependencies: orders[Sales Per Order], Orders[Profit]. Use this field for filtering, slicing, and analyzing order performance by identifying top-performing, high-margin transactions
+	column 'High Sales & Profit' =
+			
+			IF(
+			    AND('orders'[Sales Per Order] > 500, 'orders'[Profit] > 0),
+			    "Good Order",
+			    "Other Order"
+			)
+		lineageTag: 1af21479-5d5d-43e5-aed7-22a9e3627d11
+		summarizeBy: none
+		expressionContext: userContext
+
+		changedProperty = Name
+
+		changedProperty = Description
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Segmenting column that identifies potentially problematic or unprofitable transactions. Evaluates to "Risky" if Orders[Profit] is less than 0 OR Orders[Discount] is strictly greater than 0.20 (20%), and "Normal" otherwise. Dependencies: Orders[Profit], Orders[Discount]. Use this field for risk assessment, auditing unprofitable transactions, and analyzing the impact of heavy discounting
+	column 'Risky Order' =
+			
+			IF(
+			    OR('orders'[Profit] < 0, 'orders'[Discount] > 0.20),
+			    "Risky",
+			    "Normal"
+			)
+		lineageTag: 9f05516b-edf0-4491-8541-f9a550e3e1f2
+		summarizeBy: none
+		expressionContext: userContext
+
+		changedProperty = Name
+
+		changedProperty = Description
+
+		annotation SummarizationSetBy = Automatic
+
+	partition orders = entity
+		mode: directLake
+		source
+			entityName: gold_fact_orders
+			schemaName: dbo
+			expressionSource: 'DirectLake - New_Lake'
+
+	changedProperty = Name
+

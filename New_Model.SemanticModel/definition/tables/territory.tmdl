@@ -1,0 +1,51 @@
+table territory
+	lineageTag: 0890dfb5-f5a2-43d2-97bb-2741860ac51f
+	sourceLineageTag: [dbo].[gold_territory_dim]
+
+	column TerritoryKey
+		dataType: int64
+		formatString: 0
+		lineageTag: b79054e4-f83b-4b23-a233-3a23cf330004
+		sourceLineageTag: TerritoryKey
+		summarizeBy: none
+		sourceColumn: TerritoryKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column TerritoryID
+		dataType: string
+		lineageTag: 1841f81b-1e76-4e8a-b623-7cbfa4558319
+		sourceLineageTag: TerritoryID
+		summarizeBy: none
+		sourceColumn: TerritoryID
+
+		annotation SummarizationSetBy = Automatic
+
+	column TerritoryDescription
+		dataType: string
+		lineageTag: 2da6f651-7185-48cc-8f7b-839235320e28
+		sourceLineageTag: TerritoryDescription
+		summarizeBy: none
+		sourceColumn: TerritoryDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionID
+		dataType: int64
+		formatString: 0
+		lineageTag: 9907ceb3-49ab-48d1-a8c0-a7e96842e01d
+		sourceLineageTag: RegionID
+		summarizeBy: none
+		sourceColumn: RegionID
+
+		annotation SummarizationSetBy = Automatic
+
+	partition territory = entity
+		mode: directLake
+		source
+			entityName: gold_territory_dim
+			schemaName: dbo
+			expressionSource: 'DirectLake - New_Lake'
+
+	changedProperty = Name
+

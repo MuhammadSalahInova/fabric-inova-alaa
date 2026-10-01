@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "New_Sliver"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "79bc2168-2b28-9f7d-4abd-572604980d9c"
+  }
+}

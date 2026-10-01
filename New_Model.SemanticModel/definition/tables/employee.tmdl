@@ -1,0 +1,78 @@
+table employee
+	lineageTag: f33c83fc-9901-449d-ba27-7fde41aa92d2
+	sourceLineageTag: [dbo].[gold_employee_dim]
+
+	column EmployeeKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 59f02531-88b5-4a33-a2d7-63facb7f65fa
+		sourceLineageTag: EmployeeKey
+		summarizeBy: none
+		sourceColumn: EmployeeKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column EmployeeID
+		dataType: int64
+		formatString: 0
+		lineageTag: 734f96c0-5326-46aa-85e3-7f3a3e074b01
+		sourceLineageTag: EmployeeID
+		summarizeBy: none
+		sourceColumn: EmployeeID
+
+		annotation SummarizationSetBy = Automatic
+
+	column LastName
+		dataType: string
+		lineageTag: 7086d2f7-1e3f-4f0a-927a-5e1af0ba23d1
+		sourceLineageTag: LastName
+		summarizeBy: none
+		sourceColumn: LastName
+
+		annotation SummarizationSetBy = Automatic
+
+	column FirstName
+		dataType: string
+		lineageTag: c73580a7-7103-429d-9fad-3c33ec3d45ab
+		sourceLineageTag: FirstName
+		summarizeBy: none
+		sourceColumn: FirstName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Title
+		dataType: string
+		lineageTag: 3293aa7b-487b-43bf-8ae0-4f1095e749b5
+		sourceLineageTag: Title
+		summarizeBy: none
+		sourceColumn: Title
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: cd6c5fe9-5b93-4b22-af18-9cb3f9f823f8
+		sourceLineageTag: City
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: 11d7acdc-338a-4dba-9ad3-d2127a2dce65
+		sourceLineageTag: Country
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	partition employee = entity
+		mode: directLake
+		source
+			entityName: gold_employee_dim
+			schemaName: dbo
+			expressionSource: 'DirectLake - New_Lake'
+
+	changedProperty = Name
+

@@ -1,0 +1,113 @@
+table customer
+	lineageTag: 01d397e2-1999-49c9-9da9-4a9098bcde2a
+	sourceLineageTag: [dbo].[gold_customer_dim]
+
+	column CustomerKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 27568395-c58e-4e06-8e56-a0f937dd71bd
+		sourceLineageTag: CustomerKey
+		summarizeBy: none
+		sourceColumn: CustomerKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustomerID
+		dataType: string
+		lineageTag: acfc56c1-63bd-4d97-afb0-a47b348636f4
+		sourceLineageTag: CustomerID
+		summarizeBy: none
+		sourceColumn: CustomerID
+
+		annotation SummarizationSetBy = Automatic
+
+	column CompanyName
+		dataType: string
+		lineageTag: 090e9b2d-479c-4ae4-b410-dc5034f49a90
+		sourceLineageTag: CompanyName
+		summarizeBy: none
+		sourceColumn: CompanyName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContactName
+		dataType: string
+		lineageTag: a7d095b9-e418-4722-a95d-2df0ada60e64
+		sourceLineageTag: ContactName
+		summarizeBy: none
+		sourceColumn: ContactName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContactTitle
+		dataType: string
+		lineageTag: 67b58147-3fa1-49b7-975a-639f45369f6b
+		sourceLineageTag: ContactTitle
+		summarizeBy: none
+		sourceColumn: ContactTitle
+
+		annotation SummarizationSetBy = Automatic
+
+	column Address
+		dataType: string
+		lineageTag: ff6c6c1d-89d9-4efd-983d-b2cf5e313f23
+		sourceLineageTag: Address
+		summarizeBy: none
+		sourceColumn: Address
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: 61df827c-e4c2-4c4a-a438-c5ac8e9b3ea2
+		sourceLineageTag: City
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: 0962f279-0a64-430d-96b3-2458bec4d19d
+		sourceLineageTag: Region
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column PostalCode
+		dataType: string
+		lineageTag: cbd827f6-89ab-47d4-8a51-ad282ddeac18
+		sourceLineageTag: PostalCode
+		summarizeBy: none
+		sourceColumn: PostalCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: 7fa1b3e2-97fd-4d33-b15e-9ad43b6b7ef0
+		sourceLineageTag: Country
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column Phone
+		dataType: string
+		lineageTag: f53f8569-89f3-4ffc-ba6e-6d1351bb4832
+		sourceLineageTag: Phone
+		summarizeBy: none
+		sourceColumn: Phone
+
+		annotation SummarizationSetBy = Automatic
+
+	partition customer = entity
+		mode: directLake
+		source
+			entityName: gold_customer_dim
+			schemaName: dbo
+			expressionSource: 'DirectLake - New_Lake'
+
+	changedProperty = Name
+

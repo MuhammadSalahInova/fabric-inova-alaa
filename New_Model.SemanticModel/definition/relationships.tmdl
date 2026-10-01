@@ -1,0 +1,28 @@
+relationship 6f926ff1-50b4-9603-46a0-b5191fcd6bee
+	fromColumn: orders.EmployeeKey
+	toColumn: employee.EmployeeKey
+
+relationship 20945136-2455-af8e-4f95-e1ffe1411b9b
+	fromColumn: orders.CustomerKey
+	toColumn: customer.CustomerKey
+
+relationship 88c3e047-ab8a-7ab4-61ca-e63157d2c4f1
+	fromColumn: orders.ProductKey
+	toColumn: product.ProductKey
+
+relationship 562c65b5-4391-a8cf-7a03-28de4d4ed0a7
+	fromColumn: orders.ShipperKey
+	toColumn: shipper.ShipperKey
+
+relationship 896e8e34-8fba-b4bd-c5bf-b6542b2a9d23
+	fromColumn: orders.SupplierKey
+	toColumn: supplier.SupplierKey
+
+relationship a9e0b17f-5230-a930-a81d-1dca9a4b4cad
+	fromColumn: orders.TerritoryID
+	toColumn: territory.TerritoryID
+
+relationship b1c08c1a-defa-d0db-eed0-de9cf3da7630
+	fromColumn: Date.DateKey
+	toColumn: orders.OrderDateKey
+

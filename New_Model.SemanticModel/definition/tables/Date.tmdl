@@ -1,0 +1,114 @@
+table Date
+	lineageTag: 5e618a5a-1bfe-44fc-9ba3-6469ce3ebd2c
+	sourceLineageTag: [dbo].[gold_dim_date]
+	dataCategory: Time
+
+	column DateKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 006d4d2c-9ec2-4947-8593-9e2472309695
+		sourceLineageTag: DateKey
+		summarizeBy: none
+		sourceColumn: DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column FullDate
+		dataType: dateTime
+		isKey
+		formatString: Long Date
+		lineageTag: 7386d63a-7252-4e9f-9181-64a9a6543b24
+		sourceLineageTag: FullDate
+		summarizeBy: none
+		sourceColumn: FullDate
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 9a9c6b40-ccd6-414a-886d-5367cb466812
+		sourceLineageTag: Year
+		summarizeBy: none
+		sourceColumn: Year
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Month
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b1bd7713-9502-4ed5-aceb-c5eef732aaf2
+		sourceLineageTag: Month
+		summarizeBy: none
+		sourceColumn: Month
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Day
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: adc37c3a-6e19-4fe1-8090-b54a36646f14
+		sourceLineageTag: Day
+		summarizeBy: none
+		sourceColumn: Day
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column MonthName
+		dataType: string
+		lineageTag: b54f622c-0935-41ff-b240-decdec84d494
+		sourceLineageTag: MonthName
+		summarizeBy: none
+		sourceColumn: MonthName
+
+		annotation SummarizationSetBy = Automatic
+
+	column DayOfWeek
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: c4f52719-56a7-4453-b65a-57a360605d68
+		sourceLineageTag: DayOfWeek
+		summarizeBy: none
+		sourceColumn: DayOfWeek
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column IsWeekend
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 04f6d96b-7155-46a3-84ca-6769236e73f1
+		sourceLineageTag: IsWeekend
+		summarizeBy: none
+		sourceColumn: IsWeekend
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Date = entity
+		mode: directLake
+		source
+			entityName: gold_dim_date
+			schemaName: dbo
+			expressionSource: 'DirectLake - New_Lake'
+
+	changedProperty = Name
+

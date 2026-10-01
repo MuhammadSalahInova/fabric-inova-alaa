@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "6b773c4a0fad81a1b7fa",
+  "position": {
+    "x": 3.7165286589955908,
+    "y": 479.4321970104312,
+    "z": 7000,
+    "height": 122.64544574685449,
+    "width": 315.90493601462521,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "htmlContent443BE3AD55E043BF878BED274D3A6865",
+    "query": {
+      "queryState": {
+        "content": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Measure"
+                    }
+                  },
+                  "Property": "Btn_Profitability2"
+                }
+              },
+              "queryRef": "Measure.Btn_Profitability2",
+              "nativeQueryRef": "Btn_Profitability2"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
